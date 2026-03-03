@@ -1,0 +1,178 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-light: #eff6ff;
+  --color-navy-accent: #0f172a;
+  --color-background-light: #f3f6fb;
+  --color-background-dark: #0b111b;
+
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  --font-mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-slate-200;
+  }
+
+  body {
+    @apply bg-background-light text-slate-900 font-display antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.01em;
+  }
+
+  html.dark body {
+    color: #e5e7eb;
+    background-color: var(--color-background-dark);
+  }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.18);
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-slate-400;
+  }
+
+  th {
+    @apply font-semibold;
+  }
+
+  td,
+  th {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .sidebar-active {
+    @apply bg-slate-100 text-slate-950 font-semibold shadow-sm ring-1 ring-slate-200 dark:text-white;
+  }
+
+  html.dark .sidebar-active {
+    background-color: #1c2736;
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.24);
+    --tw-ring-color: #334155;
+  }
+
+  .surface-card {
+    @apply rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.045)];
+  }
+
+  html.dark .surface-card {
+    border-color: #233041;
+    background-color: #121b29;
+    box-shadow: 0 18px 42px rgba(2, 6, 23, 0.34);
+  }
+
+  .surface-soft {
+    @apply rounded-[18px] border border-slate-200 bg-slate-50;
+  }
+
+  html.dark .surface-soft {
+    border-color: #1f2a39;
+    background-color: #0d1522;
+  }
+
+  .eyebrow-label {
+    @apply inline-flex items-center gap-2 rounded-full bg-slate-100 px-3.5 py-1.5 text-[12px] font-semibold tracking-[0.04em] text-slate-600;
+  }
+
+  html.dark .eyebrow-label {
+    background-color: #1a2433;
+    color: #cbd5e1;
+  }
+
+  .metric-value {
+    @apply font-bold leading-[1.08] tracking-[-0.025em] tabular-nums text-slate-950 dark:text-slate-50;
+  }
+
+  .metric-note {
+    @apply text-sm leading-6 text-slate-500 dark:text-slate-400;
+  }
+
+  .data-table {
+    @apply w-full text-left;
+  }
+
+  .data-table thead tr {
+    @apply border-b border-slate-100 text-[11px] uppercase tracking-[0.24em] text-slate-400;
+  }
+
+  .data-table tbody tr {
+    @apply border-b border-slate-50;
+  }
+
+  .data-table td,
+  .data-table th {
+    @apply px-2 py-4 align-top;
+  }
+
+  html.dark .data-table thead tr {
+    border-color: #233041;
+  }
+
+  html.dark .data-table tbody tr {
+    border-color: #1b2533;
+  }
+
+  .corner-confetti-piece {
+    position: absolute;
+    bottom: 0;
+    display: block;
+    border-radius: 999px;
+    opacity: 0;
+    animation: corner-confetti-burst var(--confetti-duration, 1.2s) cubic-bezier(0.16, 1, 0.3, 1) var(--confetti-delay, 0s) forwards;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  }
+
+  .onboarding-highlight {
+    animation: onboarding-highlight-pulse 1.85s ease-in-out infinite;
+  }
+}
+
+@keyframes corner-confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.7);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-x, 0), calc(var(--confetti-y, 160px) * -1), 0) rotate(var(--confetti-rotate, 180deg)) scale(1);
+  }
+}
+
+@keyframes onboarding-highlight-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.012);
+  }
+}
