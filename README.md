@@ -65,6 +65,18 @@ npm run build
 npm run preview
 ```
 
+## Deploy
+
+This project is ready to deploy to Vercel as a static single-page app.
+
+Recommended flow:
+
+1. Import the GitHub repository into Vercel
+2. Keep the default framework detection as `Vite`
+3. Deploy
+
+The repo includes a `vercel.json` rewrite so routes such as `/dashboard`, `/portfolio`, `/budget`, and `/account/:id` continue to work after refresh.
+
 ## Tech stack
 
 - React
