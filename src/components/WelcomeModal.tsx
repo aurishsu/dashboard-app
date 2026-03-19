@@ -120,7 +120,7 @@ export function WelcomeModal({
                                 首次使用
                             </div>
 
-                            <h1 className="mt-6 max-w-2xl text-[2.3rem] font-black tracking-[-0.06em] text-slate-950 dark:text-white">
+                            <h1 className="mt-6 max-w-2xl text-[2.15rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
                                 欢迎使用个人资产台账
                             </h1>
                             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
@@ -153,21 +153,21 @@ export function WelcomeModal({
                                     <button
                                         type="button"
                                         onClick={handleGuide}
-                                        className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-slate-950 sm:col-span-2"
+                                        className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-white dark:text-slate-950 sm:col-span-2"
                                     >
                                         从空白模板开始
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleStart}
-                                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
+                                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
                                     >
                                         直接进入首页
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleBudget}
-                                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
+                                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
                                     >
                                         先看预算提醒
                                     </button>
@@ -175,7 +175,7 @@ export function WelcomeModal({
                                         <button
                                             type="button"
                                             onClick={handleRestore}
-                                            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
+                                            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
                                         >
                                             恢复之前的数据
                                         </button>
@@ -206,7 +206,7 @@ export function WelcomeModal({
                                 上手预览
                             </div>
 
-                            <h2 className="mt-4 text-[1.6rem] font-black tracking-[-0.05em] text-slate-950 dark:text-white">
+                            <h2 className="mt-4 text-[1.5rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
                                 三步完成第一版台账
                             </h2>
                             <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
@@ -217,7 +217,7 @@ export function WelcomeModal({
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Setup Preview</p>
-                                        <p className="mt-2 text-[1.2rem] font-black tracking-[-0.04em] text-white">填完就能直接看到完整总览</p>
+                                        <p className="mt-2 text-[1.2rem] font-semibold tracking-[-0.03em] text-white">填完就能直接看到完整总览</p>
                                     </div>
                                     <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-200">
                                         Local First
@@ -281,7 +281,7 @@ function SignalTile({ icon, title, body }: { icon: ReactNode; title: string; bod
                     {icon}
                 </div>
                 <div>
-                    <p className="text-[15px] font-black text-slate-950 dark:text-white">{title}</p>
+                    <p className="text-[15px] font-semibold text-slate-950 dark:text-white">{title}</p>
                     <p className="mt-0.5 text-[13px] leading-5 text-slate-500 dark:text-slate-400">{body}</p>
                 </div>
             </div>
@@ -293,7 +293,7 @@ function LandingStat({ value, label, note }: { value: string; label: string; not
     return (
         <div className="rounded-[20px] border border-slate-200 bg-slate-50/90 px-4 py-3.5 dark:border-slate-800 dark:bg-slate-950/80">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
-            <p className="mt-2.5 text-[1.55rem] font-black tracking-[-0.05em] text-slate-950 dark:text-white">{value}</p>
+            <p className="mt-2.5 text-[1.55rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">{value}</p>
             <p className="mt-1.5 text-[13px] leading-6 text-slate-500 dark:text-slate-400">{note}</p>
         </div>
     );
@@ -320,7 +320,7 @@ function PreviewRow({
                         {icon}
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-white">{title}</p>
+                        <p className="text-sm font-semibold text-white">{title}</p>
                         <p className="mt-1 text-[13px] leading-5 text-slate-300">{note}</p>
                     </div>
                 </div>
