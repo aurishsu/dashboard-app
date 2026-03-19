@@ -99,32 +99,32 @@ export function WelcomeModal({
         >
             <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={dismiss} />
 
-            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1120px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
+            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1040px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
                 <button
                     type="button"
                     onClick={dismiss}
-                    className="absolute right-5 top-5 z-20 inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow-[0_14px_30px_rgba(15,23,42,0.16)] transition hover:opacity-90 dark:bg-white dark:text-slate-950"
+                    className="absolute right-5 top-5 z-20 inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-[0_14px_30px_rgba(15,23,42,0.16)] transition hover:opacity-90 dark:bg-white dark:text-slate-950"
                     aria-label="关闭欢迎界面"
                 >
                     <X size={15} />
                     关闭
                 </button>
 
-                <div className="grid gap-0 min-[1320px]:grid-cols-[minmax(0,1fr)_390px]">
-                    <section className="relative flex overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 min-[1320px]:border-b-0 min-[1320px]:border-r min-[1320px]:p-8 min-[1320px]:pr-20">
+                <div className="grid gap-0">
+                    <section className="relative flex overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 sm:p-8 sm:pr-20">
                         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-slate-100 blur-3xl dark:bg-slate-800" />
 
                         <div className="relative flex flex-1 flex-col">
-                            <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white dark:bg-white dark:text-slate-950">
+                            <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-[11px] font-medium tracking-[0.16em] text-white dark:bg-white dark:text-slate-950">
                                 <WalletCards size={14} />
                                 首次使用
                             </div>
 
-                            <h1 className="mt-6 max-w-2xl text-[2.15rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                                欢迎使用个人资产台账
+                            <h1 className="mt-6 max-w-[14ch] text-[2.05rem] font-medium leading-[1.15] tracking-[-0.05em] text-slate-950 dark:text-white">
+                                三步开始你的第一版资产总览
                             </h1>
-                            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                                第一次打开时，不需要自己搭结构。系统已经放好了常用账户框架，你只要把数字改成真实情况，就能开始用了。
+                            <p className="mt-4 max-w-[42rem] text-sm leading-7 text-slate-600 dark:text-slate-300">
+                                不用自己搭结构，也不用先补流水。系统已经放好了常用账户框架，你只要把数字改成真实情况，就能开始用了。
                             </p>
 
                             <div className="mt-6 rounded-[26px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.92)_0%,rgba(255,255,255,0.96)_100%)] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.78)_0%,rgba(15,23,42,0.54)_100%)]">
@@ -155,14 +155,14 @@ export function WelcomeModal({
                                         onClick={handleGuide}
                                         className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-white dark:text-slate-950 sm:col-span-2"
                                     >
-                                        从空白模板开始
+                                        从预设结构开始
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleStart}
                                         className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
                                     >
-                                        直接进入首页
+                                        直接进入总览
                                     </button>
                                     <button
                                         type="button"
@@ -196,18 +196,18 @@ export function WelcomeModal({
                         </div>
                     </section>
 
-                    <aside className="relative overflow-hidden bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3f9_100%)] p-7 dark:bg-[linear-gradient(180deg,#0d1522_0%,#0a111b_100%)] min-[1320px]:p-8">
+                    <aside className="relative overflow-hidden border-t border-slate-200 bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3f9_100%)] p-7 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#0d1522_0%,#0a111b_100%)] sm:p-8">
                         <div className="absolute -right-16 -top-10 size-56 rounded-full bg-white/70 blur-3xl dark:bg-slate-700/15" />
                         <div className="absolute -bottom-12 -left-10 size-48 rounded-full bg-slate-200/70 blur-3xl dark:bg-slate-900/40" />
 
-                        <div className="relative rounded-[30px] border border-slate-200/80 bg-white/90 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/80">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                        <div className="relative mx-auto max-w-[880px] rounded-[30px] border border-slate-200/80 bg-white/90 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/80 sm:p-6">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[11px] font-medium tracking-[0.16em] text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                                 <ChartPie size={13} />
                                 上手预览
                             </div>
 
-                            <h2 className="mt-4 text-[1.5rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                                三步完成第一版台账
+                            <h2 className="mt-4 max-w-[16ch] text-[1.65rem] font-medium leading-[1.2] tracking-[-0.05em] text-slate-950 dark:text-white">
+                                填完这三步，你就能直接看到完整总览
                             </h2>
                             <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
                                 这三步填完以后，你就会直接得到首页总览、预算结论和投资组合，不需要再做别的设置。
@@ -216,11 +216,11 @@ export function WelcomeModal({
                             <div className="mt-5 rounded-[28px] border border-slate-900/10 bg-slate-950 p-4 text-white shadow-[0_20px_50px_rgba(15,23,42,0.28)] dark:border-white/8 dark:bg-[#09111c]">
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Setup Preview</p>
-                                        <p className="mt-2 text-[1.2rem] font-semibold tracking-[-0.03em] text-white">填完就能直接看到完整总览</p>
+                                        <p className="text-[11px] font-medium tracking-[0.16em] text-slate-400">步骤预览</p>
+                                        <p className="mt-2 text-[1.2rem] font-medium tracking-[-0.03em] text-white">填完就能直接看到完整总览</p>
                                     </div>
-                                    <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-200">
-                                        Local First
+                                    <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-medium tracking-[0.16em] text-slate-200">
+                                        本地优先
                                     </span>
                                 </div>
 
@@ -243,13 +243,13 @@ export function WelcomeModal({
                                         icon={<LayoutDashboard size={15} />}
                                         title="首页与投资组合"
                                         note="最后检查总资产和结构是否顺手"
-                                        progress="自动同步"
+                                        progress="最后检查"
                                         widthClass="w-[88%]"
                                     />
                                 </div>
                             </div>
 
-                            <div className="mt-4 grid gap-3 sm:grid-cols-3 min-[1320px]:grid-cols-1">
+                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
                                 <LandingStat value={`${accounts.length}`} label="预设账户" note="银行卡 · 钱包 · 券商" />
                                 <LandingStat value="6" label="支持币种" note="AUD · CNY · USD · SGD · HKD · MYR" />
                                 <LandingStat value="3" label="完成步骤" note="银行卡 -> 钱包 -> 预算提醒" />

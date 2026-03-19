@@ -27,7 +27,6 @@
 
   body {
     @apply bg-background-light text-slate-900 font-display antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     text-rendering: optimizeLegibility;
     letter-spacing: 0;
   }

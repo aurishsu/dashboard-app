@@ -1,7 +1,7 @@
 import { ArrowRight, ChartColumnIncreasing, Globe, Landmark, Lock, PiggyBank, ShieldCheck, WalletCards } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const HERO_PILLS = ['无需注册', '默认本地保存', '支持 6 种货币', '银行卡 / 钱包 / 券商都能放进来'];
+const HERO_PILLS = ['无需注册', '默认本地保存', '支持 6 种货币', '银行卡 / 钱包 / 券商统一总览'];
 
 const FEATURE_CARDS = [
     {
@@ -68,7 +68,7 @@ const FIT_POINTS = [
 export function PublicHome() {
     return (
         <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.06),transparent_26%),radial-gradient(circle_at_top_right,rgba(148,163,184,0.16),transparent_22%),linear-gradient(180deg,#f8fbff_0%,#edf3fb_48%,#ffffff_100%)] text-slate-950 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_28%),radial-gradient(circle_at_top_right,rgba(71,85,105,0.26),transparent_28%),linear-gradient(180deg,#09111b_0%,#0b1420_44%,#101826_100%)] dark:text-white">
-            <div className="mx-auto flex min-h-screen w-full max-w-[1240px] flex-col px-5 pb-14 pt-5 sm:px-6 lg:px-8">
+            <div className="mx-auto flex min-h-screen w-full max-w-[1360px] flex-col px-5 pb-14 pt-5 sm:px-6 lg:px-8">
                 <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-white/70 bg-white/82 px-5 py-4 shadow-[0_18px_42px_rgba(15,23,42,0.06)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/74">
                     <div className="flex items-center gap-4">
                         <div className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-[0_12px_28px_rgba(15,23,42,0.14)] dark:bg-white dark:text-slate-950">
@@ -98,26 +98,32 @@ export function PublicHome() {
                 </header>
 
                 <main className="mt-8 space-y-8">
-                    <section className="grid gap-6 min-[1360px]:grid-cols-[minmax(0,1.05fr)_420px]">
+                    <section className="grid gap-6 min-[1340px]:grid-cols-[minmax(0,1.12fr)_430px]">
                         <div className="relative overflow-hidden rounded-[36px] border border-white/70 bg-white/84 p-7 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/74 sm:p-9">
                             <div className="absolute -left-18 top-0 size-64 rounded-full bg-slate-200/70 blur-3xl dark:bg-slate-800/30" />
                             <div className="absolute right-0 top-0 h-56 w-64 bg-[radial-gradient(circle_at_top_right,rgba(15,23,42,0.08),transparent_65%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_65%)]" />
 
                             <div className="relative">
-                                <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white dark:bg-white dark:text-slate-950">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-[11px] font-medium tracking-[0.14em] text-white dark:bg-white dark:text-slate-950">
                                     <ShieldCheck size={14} />
                                     本地优先
                                 </div>
 
-                                <h1 className="mt-6 max-w-4xl text-[clamp(2.5rem,5.5vw,4.5rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-slate-950 dark:text-white">
-                                    把分散在银行卡、钱包和券商里的钱，
-                                    <br className="hidden sm:block" />
-                                    放回一个清楚的总览里
+                                <p className="mt-6 max-w-[44rem] text-[11px] font-medium tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                                    更轻的个人资产工作台
+                                </p>
+
+                                <h1 className="mt-4 max-w-[11ch] [text-wrap:balance] text-[clamp(2.9rem,4.6vw,4.15rem)] font-medium leading-[1.08] tracking-[-0.06em] text-slate-950 dark:text-white">
+                                    一眼看清你的总资产
                                 </h1>
 
-                                <p className="mt-5 max-w-3xl text-[1.02rem] leading-8 text-slate-600 dark:text-slate-300">
-                                    Harbor Ledger 不是一套复杂账本，而是一张更轻的资产桌面。
-                                    你只需要维护当前余额，就能快速看到总资产、多币种分布、预算压力和账户结构。
+                                <p className="mt-4 max-w-[32rem] text-[1.28rem] leading-8 tracking-[-0.03em] text-slate-700 dark:text-slate-200">
+                                    不记流水，也能知道钱在哪。
+                                </p>
+
+                                <p className="mt-5 max-w-[38rem] text-[1.02rem] leading-8 text-slate-600 dark:text-slate-300">
+                                    Harbor Ledger 把分散在银行卡、钱包和券商里的余额，重新整理成一个清楚的总览。
+                                    你维护的是当前状态，不是一整本复杂账本。
                                 </p>
 
                                 <div className="mt-6 flex flex-wrap gap-3">
@@ -129,14 +135,14 @@ export function PublicHome() {
                                 <div className="mt-8 flex flex-wrap gap-3">
                                     <Link
                                         to="/dashboard"
-                                        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_18px_34px_rgba(15,23,42,0.16)] transition hover:opacity-90 dark:bg-white dark:text-slate-950"
+                                        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-3.5 text-sm font-medium text-white shadow-[0_18px_34px_rgba(15,23,42,0.16)] transition hover:opacity-90 dark:bg-white dark:text-slate-950"
                                     >
                                         立即打开工作台
                                         <ArrowRight size={16} />
                                     </Link>
                                     <Link
                                         to="/budget"
-                                        className="rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
+                                        className="rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:text-white"
                                     >
                                         先看预算提醒
                                     </Link>
@@ -160,15 +166,15 @@ export function PublicHome() {
                         </div>
 
                         <aside className="rounded-[36px] border border-slate-200 bg-[linear-gradient(180deg,#101726_0%,#0a1020_100%)] p-6 text-white shadow-[0_24px_60px_rgba(15,23,42,0.16)] dark:border-slate-700 sm:p-7">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-slate-200">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.16em] text-slate-200">
                                 <ChartColumnIncreasing size={13} />
                                 打开就看到
                             </div>
 
-                            <h2 className="mt-4 text-[1.75rem] font-semibold leading-tight tracking-[-0.04em] text-white">
-                                打开后先看到的，不是流水，
-                                <br className="hidden sm:block min-[1360px]:hidden" />
-                                而是你当前的资金状态
+                            <h2 className="mt-4 max-w-[13ch] text-[1.95rem] font-medium leading-[1.18] tracking-[-0.05em] text-white">
+                                总览、预算和报表，
+                                <br />
+                                一打开就都在
                             </h2>
 
                             <div className="mt-6 space-y-3">
@@ -192,7 +198,7 @@ export function PublicHome() {
                                 />
                             </div>
 
-                            <div className="mt-6 grid gap-3 sm:grid-cols-3 min-[1360px]:grid-cols-1">
+                            <div className="mt-6 grid gap-3 sm:grid-cols-3 min-[1340px]:grid-cols-1">
                                 <MetricTile value="6" label="支持币种" note="AUD / CNY / USD / SGD / HKD / MYR" />
                                 <MetricTile value="0" label="云端账号" note="当前版本默认不上传个人资产" />
                                 <MetricTile value="3" label="核心页面" note="总览、预算、报表直接可用" />
@@ -209,7 +215,7 @@ export function PublicHome() {
                                 <div className="flex size-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
                                     {card.icon}
                                 </div>
-                                <h3 className="mt-5 text-[1.15rem] font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">{card.title}</h3>
+                                <h3 className="mt-5 text-[1.15rem] font-medium tracking-[-0.03em] text-slate-950 dark:text-white">{card.title}</h3>
                                 <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">{card.body}</p>
                             </div>
                         ))}
@@ -222,7 +228,7 @@ export function PublicHome() {
                                 快速开始
                             </div>
 
-                            <h2 className="mt-5 text-[2rem] font-semibold tracking-[-0.05em] text-slate-950 dark:text-white">
+                            <h2 className="mt-5 text-[1.9rem] font-medium tracking-[-0.05em] text-slate-950 dark:text-white">
                                 第一次用，三步就够
                             </h2>
                             <p className="mt-4 max-w-3xl text-sm leading-8 text-slate-600 dark:text-slate-300">
@@ -252,7 +258,7 @@ export function PublicHome() {
 
                             <div className="mt-6 rounded-[26px] bg-slate-950 px-5 py-5 text-white dark:bg-white dark:text-slate-950">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 dark:text-slate-500">现在就能用</p>
-                                <p className="mt-3 text-[1.65rem] font-semibold tracking-[-0.04em]">直接进网页版开始维护</p>
+                                <p className="mt-3 text-[1.65rem] font-medium tracking-[-0.04em]">直接进网页版开始维护</p>
                                 <p className="mt-3 text-sm leading-7 text-slate-300 dark:text-slate-600">
                                     不需要注册，也不会再看到试用倒计时或假的充值入口。你现在打开的就是可用版本。
                                 </p>
@@ -284,7 +290,7 @@ function MetricTile({ value, label, note }: { value: string; label: string; note
     return (
         <div className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">{label}</p>
-            <p className="mt-2.5 text-[1.9rem] font-semibold tracking-[-0.04em] text-white">{value}</p>
+            <p className="mt-2.5 text-[1.85rem] font-medium tracking-[-0.04em] text-white">{value}</p>
             <p className="mt-1.5 text-sm leading-6 text-slate-300">{note}</p>
         </div>
     );
@@ -305,7 +311,7 @@ function PreviewPanel({
         <div className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm font-semibold text-white">{title}</p>
+                    <p className="text-sm font-medium text-white">{title}</p>
                     <p className="mt-1 text-[13px] leading-5 text-slate-300">{body}</p>
                 </div>
                 <span className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-medium text-slate-200">
@@ -323,7 +329,7 @@ function RoadmapStep({ step, title, body }: { step: string; title: string; body:
     return (
         <div className="rounded-[24px] border border-slate-200 bg-slate-50/90 px-5 py-5 dark:border-slate-800 dark:bg-slate-900/72">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{step}</p>
-            <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">{title}</p>
+            <p className="mt-3 text-lg font-medium tracking-[-0.03em] text-slate-950 dark:text-white">{title}</p>
             <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">{body}</p>
         </div>
     );
