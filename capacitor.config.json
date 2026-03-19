@@ -1,0 +1,28 @@
+{
+	"appId": "com.aurishsu.harborledger",
+	"appName": "Harbor Ledger",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"ios": {
+		"contentInset": "automatic",
+		"preferredContentMode": "mobile",
+		"backgroundColor": "#f3f6fb"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1200,
+			"backgroundColor": "#f3f6fb",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "default",
+			"backgroundColor": "#f3f6fb"
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"SplashScreenPlugin",
+		"StatusBarPlugin",
+		"PurchasesPlugin"
+	]
+}

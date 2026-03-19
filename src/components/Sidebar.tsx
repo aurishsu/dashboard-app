@@ -52,12 +52,19 @@ const SectionHeader = ({ icon, label }: { icon: string; label: string }) => (
     </div>
 );
 
-export function Sidebar() {
+type SidebarProps = {
+    variant?: 'desktop' | 'drawer';
+    onNavigate?: () => void;
+    onClose?: () => void;
+};
+
+export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarProps) {
     const { accounts, addAccount } = useData();
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState<NewAccountForm>(DEFAULT_FORM);
     const [error, setError] = useState('');
+    const isDrawer = variant === 'drawer';
 
     const handleAdd = () => {
         if (!form.name.trim()) {
@@ -91,6 +98,7 @@ export function Sidebar() {
         setForm(DEFAULT_FORM);
         setError('');
         navigate(`/account/${newId}`);
+        onNavigate?.();
     };
 
     const closeModal = () => {
@@ -125,10 +133,13 @@ export function Sidebar() {
     const groupedBanks = banks.filter(bank => !bank.bankGroupKey || !groupedBankKeys.has(bank.bankGroupKey));
     const visibleBankGroups = Array.from(bankGroups.values()).filter(group => group.accounts.length > 1);
     const totalAccounts = accounts.length;
+    const asideClassName = isDrawer
+        ? 'flex h-full w-full max-w-[360px] flex-col overflow-hidden rounded-r-[28px] border-r border-slate-200 bg-white py-5 shadow-[0_18px_48px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-[#111a28]'
+        : 'sticky top-4 mr-4 flex min-h-[calc(100vh-6.75rem)] w-[320px] shrink-0 self-start flex-col rounded-[28px] border border-slate-200 bg-white py-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-[#111a28] 2xl:mr-5 2xl:w-[336px]';
 
     return (
         <>
-            <aside className="sticky top-4 mr-4 flex min-h-[calc(100vh-6.75rem)] w-[320px] shrink-0 self-start flex-col rounded-[28px] border border-slate-200 bg-white py-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-[#111a28] 2xl:mr-5 2xl:w-[336px]">
+            <aside className={asideClassName}>
                 <div className="border-b border-slate-100 px-6 pb-5 dark:border-slate-800">
                     <div className="flex items-start justify-between gap-4">
                         <div>
@@ -136,14 +147,26 @@ export function Sidebar() {
                             <p className="mt-3 text-xl font-bold tracking-[-0.03em] text-slate-900 dark:text-white">账户</p>
                             <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{totalAccounts} 个账户正在参与当前统计。</p>
                         </div>
-                        <button
-                            onClick={() => setShowModal(true)}
-                            className="inline-flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            aria-label="添加新账户"
-                            title="添加新账户"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="inline-flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                aria-label="添加新账户"
+                                title="添加新账户"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">add</span>
+                            </button>
+                            {isDrawer && (
+                                <button
+                                    onClick={onClose}
+                                    className="inline-flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
+                                    aria-label="关闭侧边栏"
+                                    title="关闭侧边栏"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">close</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -153,7 +176,7 @@ export function Sidebar() {
                             <SectionHeader icon="credit_card" label="银行卡" />
                             <div className="space-y-1.5">
                                 {groupedBanks.map(acc => (
-                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses}>
+                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
                                         {({ isActive }) => (
                                             <>
                                                 <span className={dotClasses(isActive)}></span>
@@ -163,7 +186,7 @@ export function Sidebar() {
                                     </NavLink>
                                 ))}
                                 {visibleBankGroups.map(group => (
-                                    <NavLink key={group.key} to={`/bank-group/${group.key}`} className={linkClasses}>
+                                    <NavLink key={group.key} to={`/bank-group/${group.key}`} className={linkClasses} onClick={onNavigate}>
                                         {({ isActive }) => (
                                             <>
                                                 <span className={dotClasses(isActive)}></span>
@@ -184,7 +207,7 @@ export function Sidebar() {
                             <SectionHeader icon="account_balance_wallet" label="手机钱包" />
                             <div className="space-y-1.5">
                                 {wallets.map(acc => (
-                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses}>
+                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
                                         {({ isActive }) => (
                                             <>
                                                 <span className={dotClasses(isActive)}></span>
@@ -202,7 +225,7 @@ export function Sidebar() {
                             <SectionHeader icon="monitoring" label="券商" />
                             <div className="space-y-1.5">
                                 {brokers.map(acc => (
-                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses}>
+                                    <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
                                         {({ isActive }) => (
                                             <>
                                                 <span className={dotClasses(isActive)}></span>

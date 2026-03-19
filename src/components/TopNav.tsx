@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { CircleHelp, MoonStar, SunMedium } from 'lucide-react';
+import { CircleHelp, Menu, MoonStar, SunMedium } from 'lucide-react';
 import { useData } from '../context/useData';
 import { useTheme } from '../context/useTheme';
 
@@ -13,7 +13,13 @@ function toDisplayName(rawName?: string) {
         .join(' ');
 }
 
-export function TopNav({ onOpenWelcome }: { onOpenWelcome?: () => void }) {
+export function TopNav({
+    onOpenWelcome,
+    onToggleSidebar,
+}: {
+    onOpenWelcome?: () => void;
+    onToggleSidebar?: () => void;
+}) {
     const { accounts } = useData();
     const { isDark, toggleTheme } = useTheme();
     const holderName = accounts.find(account => account.type === 'bank' && account.holderName)?.holderName;
@@ -21,9 +27,18 @@ export function TopNav({ onOpenWelcome }: { onOpenWelcome?: () => void }) {
 
     return (
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-[#0f1624]">
-            <div className="flex w-full items-center justify-between whitespace-nowrap px-5 py-4 lg:px-6 2xl:px-7">
+            <div className="flex w-full items-center justify-between px-4 py-4 sm:px-5 lg:px-6 2xl:px-7">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={onToggleSidebar}
+                            className="inline-flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 2xl:hidden"
+                            aria-label="打开账户侧边栏"
+                            title="打开账户侧边栏"
+                        >
+                            <Menu size={18} />
+                        </button>
                         <div className="flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-[0_8px_20px_rgba(15,23,42,0.12)] dark:bg-white dark:text-slate-950">
                             <span className="material-symbols-outlined font-bold">account_balance_wallet</span>
                         </div>
@@ -32,10 +47,11 @@ export function TopNav({ onOpenWelcome }: { onOpenWelcome?: () => void }) {
                             <p className="mt-1 text-[12px] text-slate-500 dark:text-slate-400">只记录你真实维护的余额和币种</p>
                         </div>
                     </div>
-                    <nav className="hidden items-center gap-2 md:flex">
+                    <nav className="hidden items-center gap-2 xl:flex">
                         <NavLink to="/dashboard" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition-all ${isActive ? 'bg-slate-100 text-slate-950 ring-1 ring-slate-200 dark:bg-slate-700/80 dark:text-white dark:ring-slate-600' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'}`}>首页</NavLink>
                         <NavLink to="/portfolio" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition-all ${isActive ? 'bg-slate-100 text-slate-950 ring-1 ring-slate-200 dark:bg-slate-700/80 dark:text-white dark:ring-slate-600' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'}`}>投资组合</NavLink>
                         <NavLink to="/budget" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition-all ${isActive ? 'bg-slate-100 text-slate-950 ring-1 ring-slate-200 dark:bg-slate-700/80 dark:text-white dark:ring-slate-600' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'}`}>预算提醒</NavLink>
+                        <NavLink to="/reports" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition-all ${isActive ? 'bg-slate-100 text-slate-950 ring-1 ring-slate-200 dark:bg-slate-700/80 dark:text-white dark:ring-slate-600' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'}`}>报表</NavLink>
                     </nav>
                 </div>
 

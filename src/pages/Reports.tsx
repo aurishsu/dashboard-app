@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { AlertTriangle, Search, ShieldCheck } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { AlertTriangle, Download, Search, ShieldCheck, X } from 'lucide-react';
 import { useData } from '../context/useData';
 import { buildAccountRows, getDistinctCurrencies, getZeroValueAccounts } from '../utils/accountMetrics';
 import type { AccountType } from '../types/data';
@@ -12,9 +12,56 @@ const TYPE_LABELS: Record<'all' | AccountType, string> = {
 };
 
 export function Reports() {
-    const { accounts, totalUSD, toUSD } = useData();
+    const { accounts, totalUSD, toUSD, exchangeRates, budgetItems, reminders, essentialPlans, supportPlans, supportSources } = useData();
     const [activeType, setActiveType] = useState<'all' | AccountType>('all');
     const [query, setQuery] = useState('');
+    const [showExportModal, setShowExportModal] = useState(false);
+
+    const handleExport = useCallback((mode: 'full' | 'privacy') => {
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+
+        const exportAccounts = accounts.map((account, index) => {
+            if (mode === 'privacy') {
+                return {
+                    id: account.id,
+                    name: `Account ${index + 1}`,
+                    type: account.type,
+                    currency: account.currency,
+                    balance: account.balance,
+                    subBalances: account.subBalances,
+                    ...(account.type === 'broker' ? { dailyChange: account.dailyChange, dailyChangePct: account.dailyChangePct, buyingPower: account.buyingPower } : {}),
+                };
+            }
+            const { ...full } = account;
+            return full;
+        });
+
+        const exportData = {
+            version: '1.0',
+            generated_at: now.toISOString(),
+            ai_prompt_hint: 'Paste this JSON into ChatGPT or Claude and ask: Analyze my financial health and give me actionable advice.',
+            exchange_rates: exchangeRates,
+            total_usd: totalUSD,
+            accounts: exportAccounts,
+            budget_items: budgetItems,
+            reminders,
+            essential_plans: essentialPlans,
+            support_plans: supportPlans,
+            support_sources: supportSources,
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `harbor-ledger-export-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setShowExportModal(false);
+    }, [accounts, exchangeRates, totalUSD, budgetItems, reminders, essentialPlans, supportPlans, supportSources]);
 
     const accountRows = useMemo(() => buildAccountRows(accounts, toUSD), [accounts, toUSD]);
     const zeroValueAccounts = useMemo(() => getZeroValueAccounts(accounts, toUSD), [accounts, toUSD]);
@@ -46,9 +93,19 @@ export function Reports() {
                             Ledger Review
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">报表与检查</h1>
+                            <div className="flex items-center gap-4">
+                                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">报表与检查</h1>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowExportModal(true)}
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                >
+                                    <Download size={16} />
+                                    导出数据 / Export
+                                </button>
+                            </div>
                             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                                报表页不再伪造流水、CSV 导出和状态标签。这里现在专门做账户清单检查，帮助你快速发现该补、该删、该整理的地方。
+                                账户清单检查，帮助你快速发现该补、该删、该整理的地方。支持导出全部数据为 JSON 文件。
                             </p>
                         </div>
                     </div>
@@ -165,6 +222,53 @@ export function Reports() {
                     <p>筛选和搜索都基于真实账户数据，不再展示伪造的交易流水。</p>
                 </div>
             </section>
+
+            {showExportModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowExportModal(false)}>
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+                    <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-slate-900" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-black text-slate-900 dark:text-white">导出数据 / Export Data</h2>
+                            <button onClick={() => setShowExportModal(false)} className="rounded-full p-2 transition hover:bg-slate-100 dark:hover:bg-slate-800">
+                                <X size={20} className="text-slate-500" />
+                            </button>
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                            选择导出模式。JSON 文件包含账户、余额、汇率、预算计划等全部数据。
+                            <br />
+                            <span className="text-slate-400 dark:text-slate-500">Choose export mode. The JSON file includes accounts, balances, exchange rates, and budget plans.</span>
+                        </p>
+                        <div className="space-y-3">
+                            <button
+                                type="button"
+                                onClick={() => handleExport('full')}
+                                className="flex w-full items-center gap-4 rounded-2xl border-2 border-slate-200 p-5 text-left transition hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
+                            >
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+                                    <Download size={18} className="text-slate-600 dark:text-slate-300" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-slate-900 dark:text-white">完整导出 / Full Export</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">包含账户名称、卡号、持卡人等所有明细 / Includes account names, card numbers, all details</p>
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleExport('privacy')}
+                                className="flex w-full items-center gap-4 rounded-2xl border-2 border-slate-200 p-5 text-left transition hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
+                            >
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+                                    <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-slate-900 dark:text-white">隐私导出 / Privacy Export</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">隐藏账户名称和卡号，用通用标签替代 / Hides account names & card numbers, uses generic labels</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

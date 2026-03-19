@@ -3,6 +3,7 @@ import { ArrowUpRight, Landmark, Layers3, WalletCards } from 'lucide-react';
 import { useData } from '../context/useData';
 import { buildAccountRows, buildCurrencyBreakdown, buildTypeBreakdown } from '../utils/accountMetrics';
 import type { AccountType } from '../types/data';
+import { FeatureGate } from '../components/FeatureGate';
 
 const TYPE_COLORS: Record<AccountType, string> = {
     bank: '#0f172a',
@@ -86,6 +87,7 @@ export function Portfolio() {
     const rankedAccounts = accountRows;
 
     return (
+        <FeatureGate featureKey="portfolio_advanced">
         <div className="w-full space-y-8 animate-in fade-in duration-500">
             <section className="grid items-stretch gap-6 lg:grid-cols-[1.7fr_1fr]">
                 <div className="surface-card p-8">
@@ -343,6 +345,7 @@ export function Portfolio() {
                 </div>
             </section>
         </div>
+        </FeatureGate>
     );
 }
 

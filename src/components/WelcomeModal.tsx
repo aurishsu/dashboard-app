@@ -99,7 +99,7 @@ export function WelcomeModal({
         >
             <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={dismiss} />
 
-            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1040px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
+            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1080px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
                 <button
                     type="button"
                     onClick={dismiss}
@@ -110,11 +110,11 @@ export function WelcomeModal({
                     关闭
                 </button>
 
-                <div className="grid gap-0 xl:grid-cols-[minmax(0,1.06fr)_390px]">
-                    <section className="relative flex min-h-full overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 xl:border-b-0 xl:border-r xl:p-8 xl:pr-22">
+                <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1.04fr)_390px]">
+                    <section className="relative flex overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 xl:border-b-0 xl:border-r xl:p-8 xl:pr-20">
                         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-slate-100 blur-3xl dark:bg-slate-800" />
 
-                        <div className="relative flex min-h-full flex-1 flex-col">
+                        <div className="relative flex flex-1 flex-col">
                             <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white dark:bg-white dark:text-slate-950">
                                 <WalletCards size={14} />
                                 首次使用
@@ -149,11 +149,11 @@ export function WelcomeModal({
 
                             <div className="mt-6 rounded-[24px] border border-slate-200 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-950/70">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">开始方式</p>
-                                <div className="mt-3 flex flex-wrap gap-3">
+                                <div className="mt-3 grid gap-3 sm:grid-cols-2">
                                     <button
                                         type="button"
                                         onClick={handleGuide}
-                                        className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-slate-950"
+                                        className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-slate-950 sm:col-span-2"
                                     >
                                         从空白模板开始
                                     </button>
@@ -183,7 +183,7 @@ export function WelcomeModal({
                                 </div>
                             </div>
 
-                            <div className="mt-auto pt-6">
+                            <div className="mt-6">
                                 <div className="rounded-[22px] border border-slate-200 bg-slate-50/90 px-4 py-4 dark:border-slate-800 dark:bg-slate-950/70">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">开始前你只要记住</p>
                                     <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">

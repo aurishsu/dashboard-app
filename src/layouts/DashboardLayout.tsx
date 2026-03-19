@@ -41,10 +41,22 @@ export function DashboardLayout() {
     const [welcomeOpenSignal, setWelcomeOpenSignal] = useState(0);
     const [celebrationKey, setCelebrationKey] = useState(0);
     const [onboardingState, setOnboardingState] = useState<OnboardingState>(() => loadOnboardingState());
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         window.localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(onboardingState));
     }, [onboardingState]);
+
+    useEffect(() => {
+        if (!sidebarOpen) return undefined;
+
+        const previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = previousBodyOverflow;
+        };
+    }, [sidebarOpen]);
 
     const firstBankAccount = accounts.find(account => account.type === 'bank' && account.id !== 'boc2') ?? accounts.find(account => account.type === 'bank');
     const firstWalletAccount = accounts.find(account => account.type === 'wallet');
@@ -94,12 +106,28 @@ export function DashboardLayout() {
 
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
-            <TopNav onOpenWelcome={() => setWelcomeOpenSignal(signal => signal + 1)} />
-            <div className="flex w-full flex-1 items-start overflow-hidden px-3 pb-5 pt-4 lg:px-4 2xl:px-5">
-                <Sidebar />
-                <main data-app-scroll="true" className="flex-1 overflow-y-auto px-4 py-4 lg:px-5 lg:py-5 2xl:px-6">
+            <TopNav
+                onOpenWelcome={() => setWelcomeOpenSignal(signal => signal + 1)}
+                onToggleSidebar={() => setSidebarOpen(current => !current)}
+            />
+            <div className="flex w-full min-w-0 flex-1 items-start overflow-hidden px-3 pb-5 pt-4 sm:px-4 lg:px-5 2xl:px-5">
+                <div className="hidden 2xl:block">
+                    <Sidebar />
+                </div>
+                <main data-app-scroll="true" className="min-w-0 flex-1 overflow-y-auto px-1 py-4 sm:px-2 lg:px-3 lg:py-5 2xl:px-6">
                     <Outlet />
                 </main>
+            </div>
+            <div className={`fixed inset-0 z-30 2xl:hidden ${sidebarOpen ? '' : 'pointer-events-none'}`}>
+                <button
+                    type="button"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`absolute inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}
+                    aria-label="关闭账户侧边栏"
+                />
+                <div className={`absolute inset-y-0 left-0 transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                    <Sidebar variant="drawer" onNavigate={() => setSidebarOpen(false)} onClose={() => setSidebarOpen(false)} />
+                </div>
             </div>
             <WelcomeModal
                 key={welcomeOpenSignal}

@@ -8,6 +8,7 @@ import { BankGroupPage } from './pages/BankGroupPage';
 import { StubPage } from './pages/StubPage';
 import { BudgetPlanner } from './pages/BudgetPlanner';
 import { ThemeProvider } from './context/ThemeProvider';
+import { Reports } from './pages/Reports';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
               <Route path="portfolio" element={<Portfolio />} />
               <Route path="budget" element={<BudgetPlanner />} />
               <Route path="account-details" element={<Navigate to="/dashboard" replace />} />
-              <Route path="reports" element={<Navigate to="/dashboard" replace />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="account/:id" element={<AccountPage />} />
               <Route path="bank-group/:groupId" element={<BankGroupPage />} />
               <Route path="stub/:id" element={<StubPage />} />

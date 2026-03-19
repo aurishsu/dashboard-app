@@ -88,7 +88,7 @@ export function AssetOverview() {
     return (
         <div className="w-full animate-in fade-in duration-500">
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
-                <div className="space-y-6">
+                <div className="min-w-0 space-y-6">
                     <section className="surface-card relative overflow-hidden p-7 lg:p-8">
                         <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_right,rgba(15,23,42,0.08),transparent_44%),radial-gradient(circle_at_top_left,rgba(148,163,184,0.12),transparent_30%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_top_left,rgba(51,65,85,0.3),transparent_34%)]" />
                         <div className="relative grid gap-6 2xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -175,7 +175,7 @@ export function AssetOverview() {
                     </div>
 
                     <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr]">
-                        <div className="surface-card p-6">
+                        <div className="min-w-0 surface-card p-6">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h2 className="text-xl font-black text-slate-900 dark:text-white">币种分布</h2>
@@ -232,7 +232,7 @@ export function AssetOverview() {
                             </div>
                         </div>
 
-                        <div className="surface-card p-6">
+                        <div className="min-w-0 surface-card p-6">
                             <div>
                                 <h2 className="text-xl font-black text-slate-900 dark:text-white">账户结构</h2>
                                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">按账户类型聚合，看清现金主要放在哪一类账户。</p>
@@ -321,7 +321,7 @@ export function AssetOverview() {
                     </section>
                 </div>
 
-                <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+                <aside className="min-w-0 space-y-6 xl:sticky xl:top-24 xl:self-start">
                     <section className="surface-card overflow-hidden">
                         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
                             <div className="flex items-center gap-2 text-slate-900 dark:text-white">
