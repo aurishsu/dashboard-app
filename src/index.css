@@ -6,9 +6,10 @@
   --color-primary-light: #eff6ff;
   --color-navy-accent: #0f172a;
   --color-background-light: #f3f6fb;
-  --color-background-dark: #0b111b;
+  --color-background-dark: #141518;
 
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "Inter", sans-serif;
+  --font-editorial: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Songti SC", "STSong", "Noto Serif SC", serif;
   --font-mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
 }
 
@@ -147,6 +148,48 @@
   .onboarding-highlight {
     animation: onboarding-highlight-pulse 1.85s ease-in-out infinite;
   }
+
+  .editorial-title {
+    font-family: var(--font-editorial);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+  }
+
+  .landing-lift {
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease;
+  }
+
+  .landing-lift:hover {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-motion {
+    opacity: 0;
+    animation: landing-reveal 760ms cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms) forwards;
+  }
+
+  .landing-drift {
+    animation: landing-drift 14s ease-in-out infinite;
+  }
+
+  .modal-overlay-enter {
+    animation: modal-overlay-fade 320ms ease-out both;
+  }
+
+  .modal-panel-enter {
+    animation: modal-panel-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: top center;
+  }
+
+  .modal-stagger {
+    opacity: 0;
+    animation: landing-reveal 680ms cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms) forwards;
+  }
 }
 
 @keyframes corner-confetti-burst {
@@ -173,5 +216,50 @@
 
   50% {
     transform: scale(1.012);
+  }
+}
+
+@keyframes landing-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes landing-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+@keyframes modal-overlay-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
