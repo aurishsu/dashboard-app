@@ -1,6 +1,46 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: "InterCustom";
+  src: url("/fonts/inter-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("/fonts/inter-500.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("/fonts/inter-600.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("/fonts/inter-700.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("/fonts/inter-800.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-primary: #2563eb;
   --color-primary-light: #eff6ff;
@@ -8,7 +48,7 @@
   --color-background-light: #f3f6fb;
   --color-background-dark: #141518;
 
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "Inter", sans-serif;
+  --font-display: "InterCustom", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --font-editorial: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Songti SC", "STSong", "Noto Serif SC", serif;
   --font-mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
 }
@@ -153,6 +193,20 @@
     font-family: var(--font-editorial);
     font-weight: 600;
     letter-spacing: -0.06em;
+  }
+
+  .landing-title-zh {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    font-weight: 580;
+    text-wrap: balance;
+    font-synthesis-weight: none;
+  }
+
+  .landing-title-en {
+    font-family: "InterCustom", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 680;
+    text-wrap: balance;
+    font-synthesis-weight: none;
   }
 
   .landing-lift {

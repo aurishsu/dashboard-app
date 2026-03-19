@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useState } from 'react';
 import { ArrowRight, Languages, Landmark, MoonStar, SunMedium } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/useTheme';
@@ -8,7 +8,10 @@ type StoryScene = {
     eyebrow: string;
     title: string;
     body: string;
-    kicker: string;
+    note: string;
+    next: string;
+    mode: 'light' | 'dark';
+    align: 'left' | 'right';
     visual: 'overview' | 'budget' | 'review';
 };
 
@@ -48,7 +51,7 @@ const COPY: Record<SiteLanguage, CopySchema> = {
             eyebrow: 'Harbor Ledger',
             title: '把你的钱，看成一个整体。',
             subtitle: '不是记账，不是流水，而是一张更清楚的资产桌面。',
-            body: '把银行卡、电子钱包和券商里的当前余额，放回同一张视图里。先看见，再判断。',
+            body: '银行卡、电子钱包和券商里的当前余额，应该回到同一张视图里。先看见，再判断。',
             primary: '立即体验',
             secondary: '继续往下',
         },
@@ -56,29 +59,38 @@ const COPY: Record<SiteLanguage, CopySchema> = {
             {
                 eyebrow: '01 总览',
                 title: '先看到全部，再看到重点。',
-                body: '最大账户、多币种估值和当前焦点，应该同时出现在眼前，而不是被拆散在很多入口里。',
-                kicker: '看的是全局，不是来回找页面。',
+                body: '最大账户、多币种估值和当前焦点，应该同时出现，而不是散在不同入口里来回寻找。',
+                note: '一张屏先把全局讲清楚。',
+                next: '下一屏',
+                mode: 'light',
+                align: 'right',
                 visual: 'overview',
             },
             {
                 eyebrow: '02 预算',
                 title: '知道这个月，还稳不稳。',
                 body: '把收入、房租、生活费和安全线放进去，月度压力应该立刻有答案，不该像填表一样费力。',
-                kicker: '判断越直接，产品越让人放松。',
+                note: '信号越直接，页面越让人安心。',
+                next: '下一屏',
+                mode: 'dark',
+                align: 'left',
                 visual: 'budget',
             },
             {
                 eyebrow: '03 复核',
                 title: '最后再检查，但一眼就能收尾。',
                 body: '零余额账户、币种覆盖和导出入口，应该像顺手整理，而不是用完前的最后一道门槛。',
-                kicker: '收尾越轻，越愿意长期打开。',
+                note: '收尾越轻，越愿意反复打开。',
+                next: '最后一屏',
+                mode: 'light',
+                align: 'right',
                 visual: 'review',
             },
         ],
         finale: {
             eyebrow: 'Harbor Ledger',
             title: '先看清楚，再决定下一步。',
-            body: '现在打开产品，把真实余额、预算判断和资产结构放回同一张桌面里。',
+            body: '打开产品，把真实余额、预算判断和资产结构放回同一张桌面里。',
             cta: '打开产品',
         },
     },
@@ -93,7 +105,7 @@ const COPY: Record<SiteLanguage, CopySchema> = {
             eyebrow: 'Harbor Ledger',
             title: 'See your money as one whole.',
             subtitle: 'Not bookkeeping. Not transactions. A clearer surface for your assets.',
-            body: 'Bring the balances in your cards, wallets, and broker accounts back into one view. See first. Judge next.',
+            body: 'The balances in your cards, wallets, and broker accounts should return to one surface. See first. Judge after.',
             primary: 'Open now',
             secondary: 'Keep scrolling',
         },
@@ -101,66 +113,63 @@ const COPY: Record<SiteLanguage, CopySchema> = {
             {
                 eyebrow: '01 Overview',
                 title: 'See the whole picture before the details.',
-                body: 'Your largest holding, FX-adjusted value, and current focus should live on one surface instead of hiding behind many entry points.',
-                kicker: 'It should feel like seeing the whole map at once.',
+                body: 'Your largest holding, FX-adjusted value, and current focus should appear together instead of hiding behind multiple entry points.',
+                note: 'The first screen should settle the whole picture.',
+                next: 'Next screen',
+                mode: 'light',
+                align: 'right',
                 visual: 'overview',
             },
             {
                 eyebrow: '02 Budget',
                 title: 'Know whether this month still feels steady.',
-                body: 'Income, rent, living costs, and your safety line should turn into an answer right away, not another form to complete.',
-                kicker: 'The faster the signal, the calmer the product feels.',
+                body: 'Income, rent, living costs, and your safety line should turn into an answer right away instead of becoming another form.',
+                note: 'The faster the signal, the calmer the page feels.',
+                next: 'Next screen',
+                mode: 'dark',
+                align: 'left',
                 visual: 'budget',
             },
             {
                 eyebrow: '03 Review',
                 title: 'Leave checking for the end, but make it immediate.',
-                body: 'Zero-balance accounts, currency coverage, and export should feel like a clean finishing pass, not one more barrier before you leave.',
-                kicker: 'A lighter finish makes the product easier to reopen.',
+                body: 'Zero-balance accounts, currency coverage, and export should feel like a clean finishing pass, not another barrier on the way out.',
+                note: 'A lighter finish makes the product easier to reopen.',
+                next: 'Final screen',
+                mode: 'light',
+                align: 'right',
                 visual: 'review',
             },
         ],
         finale: {
             eyebrow: 'Harbor Ledger',
-            title: 'See clearly first, decide the rest after.',
+            title: 'See clearly first. Decide the rest after.',
             body: 'Open the product and place your real balances, monthly signal, and asset structure back onto one surface.',
             cta: 'Enter product',
         },
     },
 };
 
-const STAGE_PALETTES = [
-    {
-        shell: 'bg-[linear-gradient(160deg,#faf7f0_0%,#efe8db_100%)] ring-black/6 shadow-[0_38px_100px_rgba(15,23,42,0.12)]',
-        caption: 'text-slate-500',
-        badge: 'bg-white/88 text-slate-950 ring-1 ring-black/6',
-        surface: 'bg-white/88 shadow-[0_24px_70px_rgba(15,23,42,0.08)]',
-        lineStrong: 'bg-slate-950',
-        lineSoft: 'bg-slate-300',
-        accent: 'bg-[#dfe7f2]',
-    },
-    {
-        shell: 'bg-[linear-gradient(160deg,#101319_0%,#181b23_100%)] ring-white/8 shadow-[0_44px_120px_rgba(0,0,0,0.38)]',
-        caption: 'text-slate-400',
-        badge: 'bg-white/10 text-white ring-1 ring-white/10',
-        surface: 'bg-white/6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] ring-1 ring-white/10',
-        lineStrong: 'bg-white',
-        lineSoft: 'bg-white/28',
-        accent: 'bg-[#222733]',
-    },
-    {
-        shell: 'bg-[linear-gradient(160deg,#f8f3ea_0%,#ede5d7_100%)] ring-black/6 shadow-[0_38px_100px_rgba(15,23,42,0.12)]',
-        caption: 'text-slate-500',
-        badge: 'bg-white/88 text-slate-950 ring-1 ring-black/6',
-        surface: 'bg-white/92 shadow-[0_24px_70px_rgba(15,23,42,0.08)]',
-        lineStrong: 'bg-slate-950',
-        lineSoft: 'bg-slate-300',
-        accent: 'bg-[#ebe2d4]',
-    },
-] as const;
-
 function delayStyle(ms: number): CSSProperties {
     return { '--enter-delay': `${ms}ms` } as CSSProperties;
+}
+
+function heroTitleClass(language: SiteLanguage) {
+    return language === 'zh'
+        ? 'landing-title-zh text-[clamp(3.5rem,6.5vw,6.4rem)] leading-[0.98] tracking-[-0.045em] lg:whitespace-nowrap'
+        : 'landing-title-en mx-auto max-w-[13ch] text-[clamp(3rem,5.2vw,5.5rem)] leading-[0.98] tracking-[-0.055em]';
+}
+
+function sceneTitleClass(language: SiteLanguage) {
+    return language === 'zh'
+        ? 'landing-title-zh max-w-[10.6ch] text-[clamp(2.8rem,4.7vw,4.9rem)] leading-[1.02] tracking-[-0.042em]'
+        : 'landing-title-en max-w-[13.2ch] text-[clamp(2.5rem,4vw,4.2rem)] leading-[1.02] tracking-[-0.045em]';
+}
+
+function finaleTitleClass(language: SiteLanguage) {
+    return language === 'zh'
+        ? 'landing-title-zh max-w-[10ch] text-[clamp(3rem,5.4vw,5.4rem)] leading-[1.02] tracking-[-0.045em]'
+        : 'landing-title-en max-w-[12ch] text-[clamp(2.8rem,4.8vw,5rem)] leading-[1] tracking-[-0.05em]';
 }
 
 export function PublicHome() {
@@ -173,17 +182,17 @@ export function PublicHome() {
     }, [language]);
 
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#f3ede2] text-slate-950 dark:bg-[#0f1013] dark:text-white">
+        <div className="min-h-screen overflow-x-hidden bg-[#f2ecdf] text-slate-950 dark:bg-[#0e1014] dark:text-white">
             <header className="fixed inset-x-0 top-0 z-50">
-                <div className="mx-auto flex max-w-[1560px] items-center justify-between gap-4 px-5 pb-4 pt-5 sm:px-6 lg:px-8">
-                    <div className="flex items-center gap-3 rounded-full border border-white/60 bg-white/84 px-4 py-3 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-white/8 dark:bg-[#17191d]/84">
+                <div className="mx-auto flex max-w-[1580px] items-center justify-between gap-4 px-5 pb-4 pt-5 sm:px-6 lg:px-8">
+                    <div className="flex items-center gap-3 rounded-full border border-white/70 bg-white/88 px-4 py-3 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-white/10 dark:bg-[#15171b]/86">
                         <div className="flex size-10 items-center justify-center rounded-full bg-slate-950 text-white dark:bg-white dark:text-slate-950">
                             <Landmark size={17} />
                         </div>
-                        <p className="text-base font-semibold tracking-[-0.03em]">Harbor Ledger</p>
+                        <p className="text-[1.02rem] font-semibold tracking-[-0.035em]">Harbor Ledger</p>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-full border border-white/60 bg-white/84 px-2.5 py-2 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-white/8 dark:bg-[#17191d]/84">
+                    <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/88 px-2.5 py-2 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-white/10 dark:bg-[#15171b]/86">
                         <div className="inline-flex items-center rounded-full border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-[#111318]">
                             <button
                                 type="button"
@@ -224,8 +233,17 @@ export function PublicHome() {
 
             <main className="pt-22">
                 <HeroSection copy={copy.hero} language={language} />
-                <StoryRail scenes={copy.scenes} />
-                <FinalSection copy={copy.finale} />
+                {copy.scenes.map((scene, index) => (
+                    <StorySection
+                        key={scene.eyebrow}
+                        scene={scene}
+                        language={language}
+                        nextHref={index < copy.scenes.length - 1 ? `#scene-${index + 1}` : '#finale'}
+                        delay={100 + index * 60}
+                        id={`scene-${index}`}
+                    />
+                ))}
+                <FinalSection copy={copy.finale} language={language} />
             </main>
         </div>
     );
@@ -233,20 +251,20 @@ export function PublicHome() {
 
 function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: SiteLanguage }) {
     return (
-        <section className="relative min-h-[108svh] overflow-hidden bg-[#06070b] text-white">
+        <section className="relative flex min-h-[100svh] items-center overflow-hidden bg-[#06070b] text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.12),transparent_18%),radial-gradient(circle_at_18%_78%,rgba(89,102,129,0.18),transparent_22%),radial-gradient(circle_at_82%_72%,rgba(89,102,129,0.14),transparent_24%),linear-gradient(180deg,#05060a_0%,#0a0c10_100%)]" />
-            <div className="absolute left-1/2 top-[18%] h-[34vw] w-[34vw] -translate-x-1/2 rounded-full bg-white/8 blur-[140px]" />
+            <div className="absolute left-1/2 top-[24%] h-[34vw] w-[34vw] -translate-x-1/2 rounded-full bg-white/8 blur-[140px]" />
 
-            <div className="relative mx-auto flex min-h-[108svh] max-w-[1560px] flex-col items-center justify-between px-5 pb-12 pt-22 text-center sm:px-6 lg:px-8 lg:pt-28">
-                <div className="landing-motion max-w-[68rem]" style={delayStyle(80)}>
+            <div className="relative mx-auto flex min-h-[100svh] max-w-[1580px] flex-col items-center justify-center px-5 pb-16 pt-28 text-center sm:px-6 lg:px-8">
+                <div className="landing-motion max-w-[76rem]" style={delayStyle(80)}>
                     <p className="text-[11px] font-medium tracking-[0.22em] text-slate-400">{copy.eyebrow}</p>
-                    <h1 className="mt-8 text-[clamp(3.5rem,8vw,7.5rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white">
-                        <span className={language === 'zh' ? 'lg:whitespace-nowrap' : ''}>{copy.title}</span>
+                    <h1 className={`mt-8 ${heroTitleClass(language)}`}>
+                        {copy.title}
                     </h1>
-                    <p className="mx-auto mt-6 max-w-[18ch] text-[clamp(1.3rem,2vw,2rem)] font-medium leading-[1.3] tracking-[-0.035em] text-slate-200">
+                    <p className={`mx-auto mt-7 max-w-[24ch] text-balance ${language === 'zh' ? 'text-[clamp(1.45rem,1.9vw,1.85rem)] leading-[1.5] tracking-[-0.02em]' : 'text-[clamp(1.28rem,1.7vw,1.7rem)] leading-[1.46] tracking-[-0.018em]'} text-slate-200`}>
                         {copy.subtitle}
                     </p>
-                    <p className="mx-auto mt-6 max-w-[34rem] text-[1rem] leading-8 text-slate-400">
+                    <p className="mx-auto mt-6 max-w-[38rem] text-[1rem] leading-8 text-slate-400">
                         {copy.body}
                     </p>
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -258,7 +276,7 @@ function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: S
                             <ArrowRight size={15} />
                         </Link>
                         <a
-                            href="#story-0"
+                            href="#scene-0"
                             className="inline-flex items-center rounded-full border border-white/12 px-6 py-3.5 text-sm font-medium text-slate-200 transition hover:border-white/24 hover:text-white"
                         >
                             {copy.secondary}
@@ -266,208 +284,174 @@ function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: S
                     </div>
                 </div>
 
-                <div className="landing-motion relative mt-12 h-[42vw] max-h-[640px] min-h-[320px] w-full max-w-[1180px]" style={delayStyle(180)}>
-                    <div className="landing-drift absolute left-1/2 top-[10%] h-[70%] w-[78%] -translate-x-1/2 rounded-[56px] bg-[linear-gradient(160deg,#1b1e26_0%,#0a0c10_100%)] shadow-[0_60px_160px_rgba(0,0,0,0.42)] ring-1 ring-white/8" />
-                    <div className="landing-drift absolute left-[21%] top-[18%] h-[24%] w-[34%] rounded-[34px] bg-white/[0.05] backdrop-blur-sm ring-1 ring-white/10" style={{ animationDelay: '1.2s' }} />
-                    <div className="landing-drift absolute right-[16%] top-[24%] h-[36%] w-[28%] rounded-[38px] bg-white/[0.04] backdrop-blur-sm ring-1 ring-white/8" style={{ animationDelay: '2.1s' }} />
-                    <div className="absolute left-[25%] top-[27%] h-2 w-[18%] rounded-full bg-white/84" />
-                    <div className="absolute left-[25%] top-[34%] h-2 w-[12%] rounded-full bg-white/28" />
-                    <div className="absolute left-[26%] top-[52%] h-[30%] w-[44%] rounded-[38px] bg-white/[0.05] backdrop-blur-sm ring-1 ring-white/10" />
-                    <div className="absolute left-[31%] top-[60%] h-2 w-[28%] rounded-full bg-white/82" />
-                    <div className="absolute left-[31%] top-[67%] h-2 w-[24%] rounded-full bg-white/24" />
-                    <div className="absolute left-[31%] top-[74%] h-2 w-[34%] rounded-full bg-white/18" />
-                    <div className="absolute left-1/2 top-[14%] h-[66%] w-[1px] -translate-x-1/2 bg-white/7" />
+                <div className="landing-motion relative mt-16 h-[34vw] max-h-[420px] min-h-[220px] w-full max-w-[1060px]" style={delayStyle(180)}>
+                    <div className="landing-drift absolute left-1/2 top-[8%] h-[82%] w-[80%] -translate-x-1/2 rounded-[56px] bg-[linear-gradient(160deg,#1b1e26_0%,#0a0c10_100%)] shadow-[0_60px_160px_rgba(0,0,0,0.42)] ring-1 ring-white/8" />
+                    <div className="landing-drift absolute left-[20%] top-[18%] h-[22%] w-[30%] rounded-[32px] bg-white/[0.05] backdrop-blur-sm ring-1 ring-white/10" style={{ animationDelay: '1.2s' }} />
+                    <div className="landing-drift absolute right-[18%] top-[28%] h-[42%] w-[26%] rounded-[36px] bg-white/[0.04] backdrop-blur-sm ring-1 ring-white/8" style={{ animationDelay: '2.1s' }} />
+                    <div className="absolute left-[24%] top-[27%] h-2 w-[16%] rounded-full bg-white/84" />
+                    <div className="absolute left-[24%] top-[34%] h-2 w-[11%] rounded-full bg-white/28" />
+                    <div className="absolute left-[28%] top-[58%] h-[24%] w-[42%] rounded-[34px] bg-white/[0.05] backdrop-blur-sm ring-1 ring-white/10" />
+                    <div className="absolute left-[33%] top-[66%] h-2 w-[24%] rounded-full bg-white/82" />
+                    <div className="absolute left-[33%] top-[73%] h-2 w-[20%] rounded-full bg-white/24" />
                 </div>
             </div>
         </section>
     );
 }
 
-function StoryRail({ scenes }: { scenes: StoryScene[] }) {
-    const railRef = useRef<HTMLDivElement | null>(null);
-    const [activeIndex, setActiveIndex] = useState(0);
-
-    useEffect(() => {
-        const root = railRef.current;
-        if (!root) return;
-
-        const steps = Array.from(root.querySelectorAll('[data-story-step]')) as HTMLElement[];
-        if (!steps.length) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const visible = entries
-                    .filter((entry) => entry.isIntersecting)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-                if (visible) {
-                    const target = visible.target as HTMLElement;
-                    const nextIndex = Number(target.dataset.storyStep ?? 0);
-                    if (!Number.isNaN(nextIndex)) {
-                        setActiveIndex(nextIndex);
-                    }
-                }
-            },
-            {
-                threshold: [0.35, 0.55, 0.75],
-                rootMargin: '-18% 0px -18% 0px',
-            }
-        );
-
-        steps.forEach((step) => observer.observe(step));
-        return () => observer.disconnect();
-    }, []);
+function StorySection({
+    id,
+    scene,
+    language,
+    nextHref,
+    delay,
+}: {
+    id: string;
+    scene: StoryScene;
+    language: SiteLanguage;
+    nextHref: string;
+    delay: number;
+}) {
+    const light = scene.mode === 'light';
+    const reverse = scene.align === 'right';
 
     return (
-        <section ref={railRef} className="relative bg-[#f3ede2] text-slate-950 dark:bg-[#0f1013] dark:text-white">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_24%,rgba(228,218,201,0.8),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(218,226,238,0.44),transparent_24%)] dark:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.04),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(255,255,255,0.03),transparent_24%)]" />
+        <section
+            id={id}
+            className={`relative overflow-hidden lg:h-[100svh] lg:min-h-[100svh] ${light ? 'bg-[#f2ecdf] text-slate-950' : 'bg-[#0d1015] text-white'}`}
+        >
+            <div
+                className={`absolute inset-0 ${light
+                    ? 'bg-[radial-gradient(circle_at_18%_24%,rgba(228,218,201,0.76),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(218,226,238,0.44),transparent_24%)]'
+                    : 'bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.05),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(255,255,255,0.03),transparent_24%)]'}`}
+            />
 
-            <div className="relative mx-auto max-w-[1560px] gap-10 px-5 sm:px-6 lg:grid lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:px-8">
-                <div className="order-2 relative z-10">
-                    {scenes.map((scene, index) => (
-                        <article
-                            key={scene.title}
-                            id={`story-${index}`}
-                            data-story-step={index}
-                            className="flex min-h-[88svh] items-center py-18 lg:min-h-screen lg:py-0"
+            <div className={`relative mx-auto grid max-w-[1580px] items-center gap-16 px-5 py-24 sm:px-6 lg:h-full lg:px-8 ${reverse ? 'lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]' : 'lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]'}`}>
+                <div className={reverse ? 'lg:order-2' : ''}>
+                    <div className="landing-motion max-w-[39rem]" style={delayStyle(delay)}>
+                        <p className={`text-[11px] font-medium tracking-[0.22em] ${light ? 'text-slate-400' : 'text-slate-500'}`}>{scene.eyebrow}</p>
+                        <h2 className={`mt-6 ${sceneTitleClass(language)}`}>
+                            {scene.title}
+                        </h2>
+                        <p className={`mt-7 max-w-[34rem] text-[1.02rem] leading-8 ${light ? 'text-slate-600' : 'text-slate-300'}`}>
+                            {scene.body}
+                        </p>
+                        <p className={`mt-10 text-sm font-medium tracking-[-0.02em] ${light ? 'text-slate-500' : 'text-slate-400'}`}>
+                            {scene.note}
+                        </p>
+                        <a
+                            href={nextHref}
+                            className={`mt-10 inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 ${light ? 'border-slate-300 text-slate-700 hover:border-slate-400' : 'border-white/14 text-slate-200 hover:border-white/26 hover:text-white'}`}
                         >
-                            <div
-                                className={`max-w-[31rem] transition-[opacity,transform,color] duration-700 ease-out ${activeIndex === index ? 'opacity-100 translate-y-0' : 'opacity-55 translate-y-8 lg:opacity-45'}`}
-                            >
-                                <p className="text-[11px] font-medium tracking-[0.22em] text-slate-400 dark:text-slate-500">{scene.eyebrow}</p>
-                                <h2 className="mt-6 text-[clamp(3.2rem,6vw,5.6rem)] font-semibold leading-[0.92] tracking-[-0.08em]">
-                                    {scene.title}
-                                </h2>
-                                <p className="mt-6 text-[1.06rem] leading-8 text-slate-600 dark:text-slate-300">
-                                    {scene.body}
-                                </p>
-                                <p className="mt-10 text-sm font-medium tracking-[-0.02em] text-slate-500 dark:text-slate-400">
-                                    {scene.kicker}
-                                </p>
-                            </div>
-                        </article>
-                    ))}
+                            {scene.next}
+                            <ArrowRight size={14} />
+                        </a>
+                    </div>
                 </div>
 
-                <div className="order-1 py-12 lg:sticky lg:top-24 lg:flex lg:h-[calc(100svh-6rem)] lg:items-center lg:py-0">
-                    <StoryStage activeIndex={activeIndex} scene={scenes[activeIndex]} />
+                <div className={reverse ? 'lg:order-1' : ''}>
+                    <StoryVisual variant={scene.visual} light={light} delay={delay + 80} />
                 </div>
             </div>
         </section>
     );
 }
 
-function StoryStage({ activeIndex, scene }: { activeIndex: number; scene: StoryScene }) {
-    const palette = STAGE_PALETTES[activeIndex];
+function StoryVisual({
+    variant,
+    light,
+    delay,
+}: {
+    variant: StoryScene['visual'];
+    light: boolean;
+    delay: number;
+}) {
+    const shell = light
+        ? 'bg-[linear-gradient(160deg,#fbf8f1_0%,#efe7d8_100%)] ring-black/6 shadow-[0_38px_100px_rgba(15,23,42,0.12)]'
+        : 'bg-[linear-gradient(160deg,#12161d_0%,#0b0e13_100%)] ring-white/8 shadow-[0_44px_120px_rgba(0,0,0,0.36)]';
+    const surface = light
+        ? 'bg-white/90 shadow-[0_22px_60px_rgba(15,23,42,0.08)]'
+        : 'bg-white/6 ring-1 ring-white/10 shadow-[0_22px_60px_rgba(0,0,0,0.18)]';
+    const strong = light ? 'bg-slate-950' : 'bg-white';
+    const soft = light ? 'bg-slate-300' : 'bg-white/28';
 
     return (
-        <div className="landing-motion relative mx-auto h-[min(76vh,820px)] min-h-[480px] w-full max-w-[920px]" style={delayStyle(120)}>
-            <div className={`absolute inset-[10%_4%_8%_8%] rounded-[60px] ring-1 transition-all duration-700 ${palette.shell}`} />
-            <div className={`absolute left-[8%] top-[14%] h-[28%] w-[22%] rounded-full opacity-70 blur-[90px] transition-all duration-700 ${palette.accent}`} />
-            <div className={`absolute right-[10%] top-[18%] rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.18em] transition-all duration-700 ${palette.badge}`}>
-                {scene.eyebrow}
-            </div>
+        <div className="landing-motion relative mx-auto h-[min(72vh,760px)] min-h-[420px] w-full max-w-[760px]" style={delayStyle(delay)}>
+            <div className={`absolute inset-0 rounded-[58px] ring-1 transition-all duration-700 ${shell}`} />
+            <div className={`absolute left-[8%] top-[10%] h-[24%] w-[24%] rounded-full blur-[70px] ${light ? 'bg-[#dbe4ef]' : 'bg-[#262d39]'}`} />
+            {variant === 'overview' ? (
+                <>
+                    <div className={`absolute left-[10%] top-[13%] h-[24%] w-[60%] rounded-[34px] ${surface}`} />
+                    <div className={`absolute left-[10%] top-[46%] h-[34%] w-[46%] rounded-[38px] ${surface}`} />
+                    <div className={`absolute right-[12%] top-[46%] h-[34%] w-[16%] rounded-[30px] ${surface}`} />
+                    <div className={`absolute left-[15%] top-[23%] h-2 w-[20%] rounded-full ${strong}`} />
+                    <div className={`absolute left-[15%] top-[31%] h-2 w-[30%] rounded-full ${soft}`} />
+                    <div className={`absolute left-[15%] top-[61%] h-2 w-[22%] rounded-full ${strong}`} />
+                    <div className={`absolute left-[15%] top-[69%] h-2 w-[14%] rounded-full ${soft}`} />
+                    <div className={`absolute left-[15%] top-[80%] h-3 w-[28%] rounded-full ${strong}`} />
+                </>
+            ) : null}
 
-            <OverviewStage active={activeIndex === 0} palette={palette} />
-            <BudgetStage active={activeIndex === 1} palette={palette} />
-            <ReviewStage active={activeIndex === 2} palette={palette} />
-
-            <div className={`absolute bottom-[9%] left-[12%] flex items-center gap-3 text-[11px] font-medium tracking-[0.18em] transition-all duration-700 ${palette.caption}`}>
-                <span>SCROLL</span>
-                <div className="flex items-center gap-2">
-                    {[0, 1, 2].map((item) => (
-                        <span
-                            key={item}
-                            className={`block h-1.5 rounded-full transition-all duration-500 ${activeIndex === item ? 'w-7 bg-slate-950 dark:bg-white' : 'w-1.5 bg-slate-300 dark:bg-white/26'}`}
+            {variant === 'budget' ? (
+                <>
+                    <div className={`absolute left-[11%] top-[16%] h-[18%] w-[22%] rounded-[32px] ${surface}`} />
+                    <div className={`absolute right-[10%] top-[18%] h-[18%] w-[20%] rounded-full ${surface}`} />
+                    <div className={`absolute left-[10%] bottom-[14%] h-[42%] w-[80%] rounded-[40px] ${surface}`} />
+                    <svg viewBox="0 0 800 600" className="absolute inset-[8%] h-[84%] w-[84%]">
+                        <path
+                            d="M92 410 C 180 378, 262 430, 362 310 S 540 182, 690 142"
+                            fill="none"
+                            stroke={light ? '#0f172a' : '#ffffff'}
+                            strokeOpacity={light ? '0.95' : '0.88'}
+                            strokeWidth="8"
+                            strokeLinecap="round"
                         />
-                    ))}
-                </div>
+                        <path
+                            d="M92 410 C 180 378, 262 430, 362 310 S 540 182, 690 142"
+                            fill="none"
+                            stroke={light ? '#cbd5e1' : 'rgba(255,255,255,0.24)'}
+                            strokeWidth="28"
+                            strokeLinecap="round"
+                            strokeOpacity="0.28"
+                        />
+                    </svg>
+                    <div className={`absolute left-[18%] bottom-[27%] h-2 w-[26%] rounded-full ${strong}`} />
+                    <div className={`absolute left-[18%] bottom-[19%] h-2 w-[18%] rounded-full ${soft}`} />
+                </>
+            ) : null}
+
+            {variant === 'review' ? (
+                <>
+                    <div className={`absolute right-[12%] top-[14%] h-[54%] w-[44%] rotate-[4deg] rounded-[38px] ${surface}`} />
+                    <div className={`absolute left-[14%] top-[24%] h-[54%] w-[46%] -rotate-[5deg] rounded-[38px] ${surface}`} />
+                    <div className={`absolute left-[22%] top-[34%] h-2 w-[24%] rounded-full ${strong}`} />
+                    <div className={`absolute left-[22%] top-[42%] h-2 w-[34%] rounded-full ${soft}`} />
+                    <div className={`absolute left-[22%] top-[56%] h-2 w-[28%] rounded-full ${strong}`} />
+                    <div className={`absolute left-[22%] top-[64%] h-2 w-[22%] rounded-full ${soft}`} />
+                    <div className={`absolute right-[20%] top-[28%] h-2 w-[16%] rounded-full ${strong}`} />
+                    <div className={`absolute right-[20%] top-[36%] h-2 w-[22%] rounded-full ${soft}`} />
+                </>
+            ) : null}
+
+            <div className={`absolute bottom-[7%] left-[10%] rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-[0.18em] ${light ? 'border-black/8 bg-white/70 text-slate-500' : 'border-white/12 bg-white/6 text-slate-400'}`}>
+                {variant === 'overview' ? '01' : variant === 'budget' ? '02' : '03'}
             </div>
         </div>
     );
 }
 
-function OverviewStage({
-    active,
-    palette,
-}: {
-    active: boolean;
-    palette: (typeof STAGE_PALETTES)[number];
-}) {
+function FinalSection({ copy, language }: { copy: CopySchema['finale']; language: SiteLanguage }) {
     return (
-        <div
-            className={`absolute inset-[12%_8%_12%_10%] transition-[opacity,transform] duration-700 ease-out ${active ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 translate-y-10 scale-[0.98]'}`}
-        >
-            <div className={`absolute left-[4%] top-[10%] h-[22%] w-[76%] rounded-[34px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[4%] top-[42%] h-[36%] w-[56%] rounded-[40px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute right-[8%] top-[42%] h-[36%] w-[18%] rounded-[32px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[10%] top-[19%] h-2 w-[22%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[10%] top-[26%] h-2 w-[34%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className={`absolute left-[10%] top-[56%] h-2 w-[26%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[10%] top-[64%] h-2 w-[18%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className={`absolute left-[10%] top-[75%] h-3 w-[36%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-        </div>
-    );
-}
-
-function BudgetStage({
-    active,
-    palette,
-}: {
-    active: boolean;
-    palette: (typeof STAGE_PALETTES)[number];
-}) {
-    return (
-        <div
-            className={`absolute inset-[12%_8%_12%_10%] transition-[opacity,transform] duration-700 ease-out ${active ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 translate-y-10 scale-[0.98]'}`}
-        >
-            <div className={`absolute left-[5%] top-[20%] h-[14%] w-[18%] rounded-[28px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute right-[8%] top-[18%] h-[18%] w-[20%] rounded-[999px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[8%] bottom-[14%] h-[38%] w-[78%] rounded-[42px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[14%] bottom-[37%] h-2 w-[22%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[14%] bottom-[30%] h-2 w-[42%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className={`absolute left-[14%] bottom-[20%] h-3 w-[48%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[14%] bottom-[11%] h-3 w-[32%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className="absolute right-[14%] bottom-[21%] h-[16%] w-[18%] rounded-t-[38px] border-t border-l border-r border-white/16" />
-        </div>
-    );
-}
-
-function ReviewStage({
-    active,
-    palette,
-}: {
-    active: boolean;
-    palette: (typeof STAGE_PALETTES)[number];
-}) {
-    return (
-        <div
-            className={`absolute inset-[12%_8%_12%_10%] transition-[opacity,transform] duration-700 ease-out ${active ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 translate-y-10 scale-[0.98]'}`}
-        >
-            <div className={`absolute right-[11%] top-[12%] h-[58%] w-[48%] rotate-[3deg] rounded-[38px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[10%] top-[22%] h-[54%] w-[50%] -rotate-[4deg] rounded-[38px] transition-all duration-700 ${palette.surface}`} />
-            <div className={`absolute left-[18%] top-[30%] h-2 w-[26%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[18%] top-[38%] h-2 w-[34%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className={`absolute left-[18%] top-[52%] h-2 w-[28%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute left-[18%] top-[60%] h-2 w-[22%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-            <div className={`absolute right-[22%] top-[25%] h-2 w-[18%] rounded-full transition-all duration-700 ${palette.lineStrong}`} />
-            <div className={`absolute right-[22%] top-[33%] h-2 w-[24%] rounded-full transition-all duration-700 ${palette.lineSoft}`} />
-        </div>
-    );
-}
-
-function FinalSection({ copy }: { copy: CopySchema['finale'] }) {
-    return (
-        <section className="relative min-h-[92svh] overflow-hidden bg-[#07080c] text-white">
+        <section id="finale" className="relative flex min-h-[100svh] items-center overflow-hidden bg-[#07080c] text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_24%,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_80%_76%,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,#06070b_0%,#0c0e13_100%)]" />
 
-            <div className="relative mx-auto flex min-h-[92svh] max-w-[1560px] items-center px-5 py-20 sm:px-6 lg:px-8">
-                <div className="landing-motion max-w-[64rem]" style={delayStyle(80)}>
+            <div className="relative mx-auto flex min-h-[100svh] max-w-[1580px] items-center px-5 py-24 sm:px-6 lg:px-8">
+                <div className="landing-motion max-w-[66rem]" style={delayStyle(100)}>
                     <p className="text-[11px] font-medium tracking-[0.22em] text-slate-400">{copy.eyebrow}</p>
-                    <h2 className="mt-6 max-w-[11ch] text-[clamp(3.4rem,7vw,6.7rem)] font-semibold leading-[0.92] tracking-[-0.08em] text-white">
+                    <h2 className={`mt-6 ${finaleTitleClass(language)}`}>
                         {copy.title}
                     </h2>
-                    <p className="mt-7 max-w-[34rem] text-[1.06rem] leading-8 text-slate-300">
+                    <p className="mt-7 max-w-[36rem] text-[1.04rem] leading-8 text-slate-300">
                         {copy.body}
                     </p>
                     <Link
