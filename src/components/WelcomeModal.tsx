@@ -99,7 +99,7 @@ export function WelcomeModal({
         >
             <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={dismiss} />
 
-            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1080px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
+            <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[1120px] overflow-y-auto overscroll-contain rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)] dark:border-slate-700 dark:bg-slate-900">
                 <button
                     type="button"
                     onClick={dismiss}
@@ -110,8 +110,8 @@ export function WelcomeModal({
                     关闭
                 </button>
 
-                <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1.04fr)_390px]">
-                    <section className="relative flex overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 xl:border-b-0 xl:border-r xl:p-8 xl:pr-20">
+                <div className="grid gap-0 min-[1320px]:grid-cols-[minmax(0,1fr)_390px]">
+                    <section className="relative flex overflow-hidden border-b border-slate-200 p-7 pr-18 dark:border-slate-800 min-[1320px]:border-b-0 min-[1320px]:border-r min-[1320px]:p-8 min-[1320px]:pr-20">
                         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-slate-100 blur-3xl dark:bg-slate-800" />
 
                         <div className="relative flex flex-1 flex-col">
@@ -196,7 +196,7 @@ export function WelcomeModal({
                         </div>
                     </section>
 
-                    <aside className="relative overflow-hidden bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3f9_100%)] p-7 dark:bg-[linear-gradient(180deg,#0d1522_0%,#0a111b_100%)] xl:p-8">
+                    <aside className="relative overflow-hidden bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3f9_100%)] p-7 dark:bg-[linear-gradient(180deg,#0d1522_0%,#0a111b_100%)] min-[1320px]:p-8">
                         <div className="absolute -right-16 -top-10 size-56 rounded-full bg-white/70 blur-3xl dark:bg-slate-700/15" />
                         <div className="absolute -bottom-12 -left-10 size-48 rounded-full bg-slate-200/70 blur-3xl dark:bg-slate-900/40" />
 
@@ -249,9 +249,9 @@ export function WelcomeModal({
                                 </div>
                             </div>
 
-                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                                <LandingStat value={`${accounts.length}`} label="预设账户" note="银行卡、钱包、券商" />
-                                <LandingStat value="6" label="支持币种" note="AUD / CNY / USD / SGD / HKD / MYR" />
+                            <div className="mt-4 grid gap-3 sm:grid-cols-3 min-[1320px]:grid-cols-1">
+                                <LandingStat value={`${accounts.length}`} label="预设账户" note="银行卡 · 钱包 · 券商" />
+                                <LandingStat value="6" label="支持币种" note="AUD · CNY · USD · SGD · HKD · MYR" />
                                 <LandingStat value="3" label="完成步骤" note="银行卡 -> 钱包 -> 预算提醒" />
                             </div>
 
@@ -294,7 +294,7 @@ function LandingStat({ value, label, note }: { value: string; label: string; not
         <div className="rounded-[20px] border border-slate-200 bg-slate-50/90 px-4 py-3.5 dark:border-slate-800 dark:bg-slate-950/80">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
             <p className="mt-2.5 text-[1.55rem] font-black tracking-[-0.05em] text-slate-950 dark:text-white">{value}</p>
-            <p className="mt-1.5 text-sm leading-6 text-slate-500 dark:text-slate-400">{note}</p>
+            <p className="mt-1.5 text-[13px] leading-6 text-slate-500 dark:text-slate-400">{note}</p>
         </div>
     );
 }

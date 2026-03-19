@@ -9,6 +9,7 @@ import { StubPage } from './pages/StubPage';
 import { BudgetPlanner } from './pages/BudgetPlanner';
 import { ThemeProvider } from './context/ThemeProvider';
 import { Reports } from './pages/Reports';
+import { PublicHome } from './pages/PublicHome';
 
 function App() {
   return (
@@ -16,16 +17,16 @@ function App() {
       <DataProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<AssetOverview />} />
-              <Route path="portfolio" element={<Portfolio />} />
-              <Route path="budget" element={<BudgetPlanner />} />
-              <Route path="account-details" element={<Navigate to="/dashboard" replace />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="account/:id" element={<AccountPage />} />
-              <Route path="bank-group/:groupId" element={<BankGroupPage />} />
-              <Route path="stub/:id" element={<StubPage />} />
+            <Route path="/" element={<PublicHome />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<AssetOverview />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/budget" element={<BudgetPlanner />} />
+              <Route path="/account-details" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/account/:id" element={<AccountPage />} />
+              <Route path="/bank-group/:groupId" element={<BankGroupPage />} />
+              <Route path="/stub/:id" element={<StubPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
