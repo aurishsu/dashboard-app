@@ -124,7 +124,7 @@ export function AssetOverview() {
                                 <div>
                                     <p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400">总资产估值</p>
                                     <div className="mt-3 flex flex-wrap items-center gap-3">
-                                        <p className="metric-value text-[clamp(3rem,4.2vw,4.7rem)]">
+                                        <p className="metric-value max-w-full text-[clamp(1.95rem,2.9vw,3.8rem)] leading-[0.95]">
                                             {hideBalance
                                                 ? '••••••'
                                                 : new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(convertedValue)}
@@ -203,14 +203,14 @@ export function AssetOverview() {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 lg:grid-cols-2">
+                                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
                                     {currencyBreakdown.map(row => (
                                         <div key={row.key} className="min-w-0 rounded-[22px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="min-w-0 flex items-start gap-3">
                                                     <span className="size-3 rounded-full" style={{ backgroundColor: CURRENCY_COLORS[row.key] || '#64748b' }} />
                                                     <div className="min-w-0">
-                                                        <p className="font-bold text-slate-900 dark:text-white">{row.label}</p>
+                                                        <p className="line-clamp-1 font-bold text-slate-900 dark:text-white">{row.label}</p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">出现于 {row.count} 条余额记录</p>
                                                     </div>
                                                 </div>
@@ -378,7 +378,7 @@ export function AssetOverview() {
                                             className="flex items-center justify-between rounded-[16px] bg-white px-4 py-3 ring-1 ring-slate-200 transition hover:ring-slate-300 dark:bg-slate-950 dark:ring-slate-700 dark:hover:ring-slate-600"
                                         >
                                             <div>
-                                                <p className="font-semibold text-slate-900 dark:text-white">{row.account.name}</p>
+                                                <p className="line-clamp-1 font-semibold text-slate-900 dark:text-white">{row.account.name}</p>
                                                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(row.usdValue)} / {row.share.toFixed(1)}%
                                                 </p>
@@ -435,7 +435,7 @@ function SummaryCard({ label, value, note }: { label: string; value: string; not
     return (
         <div className="rounded-[18px] border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
             <p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400">{label}</p>
-            <p className="metric-value mt-3 text-3xl">{value}</p>
+            <p className="metric-value mt-3 text-[clamp(2rem,2.4vw,3rem)]">{value}</p>
             <p className="metric-note mt-2">{note}</p>
         </div>
     );

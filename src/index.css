@@ -149,6 +149,9 @@
 
   .metric-value {
     @apply font-bold leading-[1.08] tracking-[-0.025em] tabular-nums text-slate-950 dark:text-slate-50;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .metric-note {
@@ -201,15 +204,16 @@
   }
 
   .landing-title-zh {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.045em;
     text-wrap: balance;
     font-synthesis-weight: none;
   }
 
   .landing-title-en {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: var(--font-editorial);
+    font-weight: 600;
     text-wrap: balance;
     font-synthesis-weight: none;
   }

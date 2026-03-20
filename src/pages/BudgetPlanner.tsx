@@ -390,7 +390,7 @@ function EssentialCostCard({
 
             {enabled ? (
                 <>
-                    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_120px]">
+                    <div className="mt-4 grid gap-4 [grid-template-columns:minmax(0,1fr)] min-[1760px]:[grid-template-columns:minmax(0,1fr)_136px]">
                         <div>
                             <p className="mb-2 text-[12px] font-semibold text-slate-500 dark:text-slate-400">{inputLabel}</p>
                             <CurrencyAmountInput currency={currency} value={rawAmount} onAmountChange={onAmountChange} />
@@ -438,7 +438,7 @@ function CurrencyAmountInput({
     const displayValue = value === 0 ? '' : String(value);
 
     return (
-        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 focus-within:ring-2 focus-within:ring-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:ring-slate-600">
+        <div className="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 focus-within:ring-2 focus-within:ring-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:ring-slate-600">
             <span className="inline-flex min-w-[52px] shrink-0 items-center justify-center rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                 {CURRENCY_SYMBOLS[currency]}
             </span>
@@ -451,7 +451,7 @@ function CurrencyAmountInput({
                     onAmountChange(Number(sanitized || 0));
                 }}
                 placeholder="0"
-                className="min-w-0 flex-1 bg-transparent px-0 py-0 text-lg font-semibold tracking-[-0.02em] text-slate-900 outline-none placeholder:text-slate-300 dark:text-white dark:placeholder:text-slate-600"
+                className="min-w-0 w-full bg-transparent px-0 py-0 text-[clamp(1.1rem,1.65vw,1.55rem)] font-semibold tracking-[-0.02em] text-slate-900 outline-none placeholder:text-slate-300 dark:text-white dark:placeholder:text-slate-600"
             />
         </div>
     );

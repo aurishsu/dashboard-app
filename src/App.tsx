@@ -11,6 +11,8 @@ import { ThemeProvider } from './context/ThemeProvider';
 import { Reports } from './pages/Reports';
 import { PublicHome } from './pages/PublicHome';
 import { SetupFlow } from './pages/SetupFlow';
+import { PricingPage } from './pages/PricingPage';
+import { CheckoutPage } from './pages/CheckoutPage';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Routes>
             <Route path="/" element={<PublicHome />} />
             <Route path="/setup" element={<SetupFlow />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<AssetOverview />} />
               <Route path="/portfolio" element={<Portfolio />} />

@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom';
-import { CircleHelp, Landmark, Menu, MoonStar, SunMedium } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { CircleHelp, Landmark, Menu, MoonStar, Sparkles, SunMedium } from 'lucide-react';
 import { useData } from '../context/useData';
 import { useTheme } from '../context/useTheme';
 
@@ -56,6 +56,13 @@ export function TopNav({
                 </div>
 
                 <div className="flex shrink-0 items-center gap-5">
+                    <Link
+                        to="/pricing"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-950 px-3.5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 dark:border-slate-600 dark:bg-white dark:text-slate-950"
+                    >
+                        <Sparkles size={16} />
+                        <span className="hidden sm:inline">升级套餐</span>
+                    </Link>
                     <button
                         type="button"
                         onClick={onOpenWelcome}
