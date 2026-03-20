@@ -42,17 +42,17 @@ type CopySchema = {
 const COPY: Record<SiteLanguage, CopySchema> = {
     zh: {
         header: {
-            open: '进入产品',
+            open: '开始设置',
             themeLabel: '切换明暗主题',
             localeZh: '中文',
             localeEn: 'EN',
         },
         hero: {
             eyebrow: 'Harbor Ledger',
-            title: '把你的钱，看成一个整体。',
+            title: '把你的钱看成一个整体',
             subtitle: '不是记账，不是流水，而是一张更清楚的资产桌面。',
-            body: '银行卡、电子钱包和券商里的当前余额，应该回到同一张视图里。先看见，再判断。',
-            primary: '立即体验',
+            body: '银行卡、电子钱包和券商里的当前余额，应该回到同一张视图里。先看见，再判断，再决定把哪些截图交给 AI Intake。',
+            primary: '开始设置',
             secondary: '继续往下',
         },
         scenes: [
@@ -90,13 +90,13 @@ const COPY: Record<SiteLanguage, CopySchema> = {
         finale: {
             eyebrow: 'Harbor Ledger',
             title: '先看清楚，再决定下一步。',
-            body: '打开产品，把真实余额、预算判断和资产结构放回同一张桌面里。',
-            cta: '打开产品',
+            body: '先走一遍设置向导，把入口、截图队列和零值桌面定下来，再把真实余额放回同一张桌面里。',
+            cta: '进入设置',
         },
     },
     en: {
         header: {
-            open: 'Open product',
+            open: 'Start setup',
             themeLabel: 'Toggle light and dark theme',
             localeZh: '中文',
             localeEn: 'EN',
@@ -105,8 +105,8 @@ const COPY: Record<SiteLanguage, CopySchema> = {
             eyebrow: 'Harbor Ledger',
             title: 'See your money as one whole.',
             subtitle: 'Not bookkeeping. Not transactions. A clearer surface for your assets.',
-            body: 'The balances in your cards, wallets, and broker accounts should return to one surface. See first. Judge after.',
-            primary: 'Open now',
+            body: 'The balances in your cards, wallets, and broker accounts should return to one surface. See first. Judge after. Then decide what to hand to the future AI intake.',
+            primary: 'Start setup',
             secondary: 'Keep scrolling',
         },
         scenes: [
@@ -144,8 +144,8 @@ const COPY: Record<SiteLanguage, CopySchema> = {
         finale: {
             eyebrow: 'Harbor Ledger',
             title: 'See clearly first. Decide the rest after.',
-            body: 'Open the product and place your real balances, monthly signal, and asset structure back onto one surface.',
-            cta: 'Enter product',
+            body: 'Go through setup first, shape the intake lane, and confirm the zero-state workspace before any real balances land.',
+            cta: 'Enter setup',
         },
     },
 };
@@ -230,7 +230,7 @@ export function PublicHome() {
                         </button>
 
                         <Link
-                            to="/dashboard"
+                            to="/setup"
                             className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
                         >
                             {copy.header.open}
@@ -279,7 +279,7 @@ function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: S
                     </p>
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                         <Link
-                            to="/dashboard"
+                            to="/setup"
                             className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-slate-950 transition hover:-translate-y-0.5"
                         >
                             {copy.primary}
@@ -470,7 +470,7 @@ function FinalSection({ copy, language }: { copy: CopySchema['finale']; language
                         {copy.body}
                     </p>
                     <Link
-                        to="/dashboard"
+                        to="/setup"
                         className="mt-12 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-slate-950 transition hover:-translate-y-0.5"
                     >
                         {copy.cta}

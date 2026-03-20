@@ -10,6 +10,7 @@ import { BudgetPlanner } from './pages/BudgetPlanner';
 import { ThemeProvider } from './context/ThemeProvider';
 import { Reports } from './pages/Reports';
 import { PublicHome } from './pages/PublicHome';
+import { SetupFlow } from './pages/SetupFlow';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<PublicHome />} />
+            <Route path="/setup" element={<SetupFlow />} />
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<AssetOverview />} />
               <Route path="/portfolio" element={<Portfolio />} />

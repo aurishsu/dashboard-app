@@ -229,6 +229,27 @@
   .landing-lift:hover {
     transform: translateY(-6px);
   }
+
+  .setup-chip-lift {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms ease,
+      box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 180ms ease;
+  }
+
+  .setup-chip-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .setup-stage-enter {
+    animation: setup-stage-reveal 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .setup-pop {
+    opacity: 0;
+    animation: setup-pop 520ms cubic-bezier(0.16, 1, 0.3, 1) var(--enter-delay, 0ms) both;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -320,6 +341,30 @@
   from {
     opacity: 0;
     transform: translate3d(0, 24px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes setup-stage-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes setup-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.98);
   }
 
   to {

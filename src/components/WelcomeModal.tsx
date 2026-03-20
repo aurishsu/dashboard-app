@@ -1,7 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChartPie, LayoutDashboard, PiggyBank, ShieldCheck, WalletCards, X } from 'lucide-react';
-import { useData } from '../context/useData';
 import { loadSiteLanguage, type SiteLanguage } from '../lib/siteLanguage';
 
 const WELCOME_STORAGE_KEY = 'personal_ledger_welcome_seen_v2';
@@ -39,129 +38,129 @@ type WelcomeCopy = {
 
 const COPY: Record<SiteLanguage, WelcomeCopy> = {
     zh: {
-        badge: '首次使用',
-        title: '第一次打开，只做三步',
-        intro: '不用自己搭结构，也不用先补流水。系统已经放好了常用账户框架，你只需要把数字改成真实情况，就能开始用。',
+        badge: '新手设置',
+        title: '先花一分钟，把资产入口准备好',
+        intro: '先走新的设置向导，选你的状态、资产类型和常用机构，再把截图放进准备区。AI 解析层先留空，但入口、节奏和零值桌面先长出来。',
         signalTiles: [
             {
-                title: '本地保存',
-                body: '不接银行，不上传服务器。',
+                title: '先用本地草稿',
+                body: '设置过程先保存在浏览器里。',
             },
             {
-                title: '先填数字',
-                body: '账户框架已经预先放好。',
+                title: '先准备入口',
+                body: '先选机构，再接上传区。',
             },
             {
-                title: '预算能改',
-                body: '房租、生活费和转入都能改。',
+                title: '试用先开放',
+                body: '先给 7 天和 3 张图片。',
             },
         ],
         startLabel: '开始方式',
-        primary: '从预设结构开始',
+        primary: '打开设置向导',
         secondary: '直接进入总览',
-        budget: '先看预算提醒',
+        budget: '先看零值预览',
         restore: '恢复之前的数据',
-        notesLabel: '开始前你只要记住',
-        notes: ['不用新建结构', '不用补流水', '数字随时可改'],
-        previewBadge: '上手预览',
-        previewTitle: '填完这三步，你就能直接看到完整总览',
-        previewBody: '这些步骤完成以后，你就会直接得到首页总览、预算结论和投资组合，不需要再做别的设置。',
+        notesLabel: '上传前先记住',
+        notes: ['不要上传 CVV', '不要上传密码和验证码', '试用先给 3 张图片'],
+        previewBadge: '设置预览',
+        previewTitle: '新的入口会先带你走完设置，再打开零值桌面',
+        previewBody: '首页不再直接把人扔进总览，而是先走 setup，确认机构、上传队列和零值 dashboard 的样子。',
         previewRows: [
             {
-                title: '银行卡和钱包',
-                note: '先把常用账户余额改成真实数字',
-                progress: '先填这里',
+                title: '画像和资产类型',
+                note: '先选你是哪类用户，以及你要放哪些资产',
+                progress: '先决定结构',
                 widthClass: 'w-[76%]',
             },
             {
-                title: '预算提醒',
-                note: '再填净收入、房租和生活费',
-                progress: '再看预算',
+                title: '机构和截图队列',
+                note: '再选常用银行和钱包，把图片拖进准备区',
+                progress: '再放截图',
                 widthClass: 'w-[58%]',
             },
             {
-                title: '首页与投资组合',
-                note: '最后检查总资产和结构是否顺手',
-                progress: '最后检查',
+                title: '零值桌面',
+                note: '最后确认 dashboard 的模块结构和节奏',
+                progress: '最后确认',
                 widthClass: 'w-[88%]',
             },
         ],
         stats: [
             {
-                label: '预设账户',
-                note: '银行卡、钱包、券商',
+                label: '试用图片',
+                note: '先开放 3 张',
             },
             {
-                label: '支持币种',
-                note: 'AUD、CNY、USD、SGD、HKD、MYR',
+                label: '试用天数',
+                note: '先给 7 天体验',
             },
             {
-                label: '完成顺序',
-                note: '账户 -> 预算 -> 总览',
+                label: '主流程',
+                note: '设置 -> 上传 -> 零值桌面',
             },
         ],
         close: '关闭',
     },
     en: {
-        badge: 'First use',
-        title: 'On the first visit, just do three things',
-        intro: 'No need to build a structure first and no need to backfill transactions. The starter account layout is already here. Replace the numbers with the real ones and you can begin.',
+        badge: 'New setup',
+        title: 'Take a minute and prepare the intake flow first',
+        intro: 'Start with the new setup wizard. Choose your profile, asset types, and common institutions first, then queue a few screenshots. The AI layer stays empty for now, but the flow and zero-state workspace should already feel real.',
         signalTiles: [
             {
-                title: 'Saved locally',
-                body: 'No bank connection and no server upload.',
+                title: 'Saved as a local draft',
+                body: 'The setup flow stays in this browser first.',
             },
             {
-                title: 'Start with numbers',
-                body: 'The account structure is already prepared.',
+                title: 'Prepare the intake lane',
+                body: 'Pick institutions before the upload step.',
             },
             {
-                title: 'Budget is editable',
-                body: 'Rent, living costs, and transfers are all adjustable.',
+                title: 'Trial stays open first',
+                body: 'Start with 7 days and 3 images.',
             },
         ],
         startLabel: 'How to begin',
-        primary: 'Start from the preset structure',
+        primary: 'Open setup wizard',
         secondary: 'Go straight to overview',
-        budget: 'Open budget first',
+        budget: 'See the zero-state preview first',
         restore: 'Restore previous data',
-        notesLabel: 'Before you start',
-        notes: ['No need to rebuild structure', 'No need to backfill transactions', 'Numbers can be changed any time'],
-        previewBadge: 'Quick preview',
-        previewTitle: 'Complete these three steps and the full overview is ready',
-        previewBody: 'Once these steps are done, the overview, budget conclusion, and portfolio view are already in place.',
+        notesLabel: 'Before uploading',
+        notes: ['Do not upload CVV', 'Do not upload passwords or OTP codes', 'Trial starts with 3 images'],
+        previewBadge: 'Setup preview',
+        previewTitle: 'The new entry now runs through setup before opening the dashboard',
+        previewBody: 'The homepage no longer throws people directly into the overview. The new path prepares the setup flow, queue, and zero-state dashboard first.',
         previewRows: [
             {
-                title: 'Bank cards and wallets',
-                note: 'Replace the common balances with real numbers',
-                progress: 'Start here',
+                title: 'Profile and asset types',
+                note: 'Start with the user profile and asset structure',
+                progress: 'Shape first',
                 widthClass: 'w-[76%]',
             },
             {
-                title: 'Budget check',
-                note: 'Then add income, rent, and living costs',
-                progress: 'Review next',
+                title: 'Sources and queue',
+                note: 'Choose institutions and queue screenshots',
+                progress: 'Queue next',
                 widthClass: 'w-[58%]',
             },
             {
-                title: 'Overview and portfolio',
-                note: 'Finally check if the total view feels right',
-                progress: 'Final check',
+                title: 'Zero-state workspace',
+                note: 'Confirm the dashboard structure before import',
+                progress: 'Review last',
                 widthClass: 'w-[88%]',
             },
         ],
         stats: [
             {
-                label: 'Starter accounts',
-                note: 'Banks, wallets, brokers',
+                label: 'Trial images',
+                note: 'First 3 queued',
             },
             {
-                label: 'Currencies',
-                note: 'AUD, CNY, USD, SGD, HKD, MYR',
+                label: 'Trial days',
+                note: '7 days first',
             },
             {
-                label: 'Order',
-                note: 'Accounts -> Budget -> Overview',
+                label: 'Main path',
+                note: 'Setup -> Queue -> Zero-state',
             },
         ],
         close: 'Close',
@@ -180,17 +179,14 @@ function delayStyle(ms: number): CSSProperties {
 
 export function WelcomeModal({
     openSignal = 0,
-    onStartGuide,
     onRestoreBackup,
     hasBackupData,
 }: {
     openSignal?: number;
-    onStartGuide?: () => void;
     onRestoreBackup?: () => void;
     hasBackupData?: boolean;
 }) {
     const navigate = useNavigate();
-    const { accounts } = useData();
     const [open, setOpen] = useState(() => shouldShowWelcome() || openSignal > 0);
     const [language] = useState<SiteLanguage>(() => loadSiteLanguage());
     const copy = COPY[language];
@@ -239,17 +235,17 @@ export function WelcomeModal({
 
     const handleStart = () => {
         dismiss();
-        navigate('/dashboard');
+        navigate('/setup');
     };
 
     const handleGuide = () => {
         dismiss();
-        onStartGuide?.();
+        navigate('/setup');
     };
 
     const handleBudget = () => {
         dismiss();
-        navigate('/budget');
+        navigate('/setup');
     };
 
     const handleRestore = () => {
@@ -383,8 +379,8 @@ export function WelcomeModal({
                         </div>
 
                         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                            <StatCard value={`${accounts.length}`} label={copy.stats[0].label} note={copy.stats[0].note} delay={560} />
-                            <StatCard value="6" label={copy.stats[1].label} note={copy.stats[1].note} delay={640} />
+                            <StatCard value="3" label={copy.stats[0].label} note={copy.stats[0].note} delay={560} />
+                            <StatCard value="7" label={copy.stats[1].label} note={copy.stats[1].note} delay={640} />
                             <StatCard value="3" label={copy.stats[2].label} note={copy.stats[2].note} delay={720} />
                         </div>
                     </div>

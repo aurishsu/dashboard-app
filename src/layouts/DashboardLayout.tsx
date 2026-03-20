@@ -37,7 +37,7 @@ function loadOnboardingState(): OnboardingState {
 
 export function DashboardLayout() {
     const navigate = useNavigate();
-    const { accounts, resetToStarterData, restoreBackupData, hasBackupData } = useData();
+    const { accounts, restoreBackupData, hasBackupData } = useData();
     const [welcomeOpenSignal, setWelcomeOpenSignal] = useState(0);
     const [celebrationKey, setCelebrationKey] = useState(0);
     const [onboardingState, setOnboardingState] = useState<OnboardingState>(() => loadOnboardingState());
@@ -58,15 +58,7 @@ export function DashboardLayout() {
         };
     }, [sidebarOpen]);
 
-    const firstBankAccount = accounts.find(account => account.type === 'bank' && account.id !== 'boc2') ?? accounts.find(account => account.type === 'bank');
     const firstWalletAccount = accounts.find(account => account.type === 'wallet');
-
-    const beginGuide = () => {
-        resetToStarterData();
-        setOnboardingState({ active: true, completed: false, step: 1 });
-        setCelebrationKey(key => key + 1);
-        navigate(`/account/${firstBankAccount?.id ?? 'cba'}`);
-    };
 
     const finishGuide = () => {
         setOnboardingState({ active: false, completed: true, step: 0 });
@@ -132,7 +124,6 @@ export function DashboardLayout() {
             <WelcomeModal
                 key={welcomeOpenSignal}
                 openSignal={welcomeOpenSignal}
-                onStartGuide={beginGuide}
                 onRestoreBackup={hasBackupData ? restoreBackup : undefined}
                 hasBackupData={hasBackupData}
             />
