@@ -181,6 +181,15 @@ export function PublicHome() {
         saveSiteLanguage(language);
     }, [language]);
 
+    useEffect(() => {
+        const root = document.documentElement;
+        root.classList.add('landing-scroll-snap');
+
+        return () => {
+            root.classList.remove('landing-scroll-snap');
+        };
+    }, []);
+
     return (
         <div className="min-h-screen overflow-x-hidden bg-[#f2ecdf] text-slate-950 dark:bg-[#0e1014] dark:text-white">
             <header className="fixed inset-x-0 top-0 z-50">
@@ -236,6 +245,7 @@ export function PublicHome() {
                 {copy.scenes.map((scene, index) => (
                     <StorySection
                         key={scene.eyebrow}
+                        index={index}
                         scene={scene}
                         language={language}
                         nextHref={index < copy.scenes.length - 1 ? `#scene-${index + 1}` : '#finale'}
@@ -251,7 +261,7 @@ export function PublicHome() {
 
 function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: SiteLanguage }) {
     return (
-        <section className="relative flex min-h-[100svh] items-center overflow-hidden bg-[#06070b] text-white">
+        <section className="landing-section relative flex min-h-[100svh] items-center overflow-hidden bg-[#06070b] text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.12),transparent_18%),radial-gradient(circle_at_18%_78%,rgba(89,102,129,0.18),transparent_22%),radial-gradient(circle_at_82%_72%,rgba(89,102,129,0.14),transparent_24%),linear-gradient(180deg,#05060a_0%,#0a0c10_100%)]" />
             <div className="absolute left-1/2 top-[24%] h-[34vw] w-[34vw] -translate-x-1/2 rounded-full bg-white/8 blur-[140px]" />
 
@@ -301,12 +311,14 @@ function HeroSection({ copy, language }: { copy: CopySchema['hero']; language: S
 
 function StorySection({
     id,
+    index,
     scene,
     language,
     nextHref,
     delay,
 }: {
     id: string;
+    index: number;
     scene: StoryScene;
     language: SiteLanguage;
     nextHref: string;
@@ -318,17 +330,20 @@ function StorySection({
     return (
         <section
             id={id}
-            className={`relative overflow-hidden lg:h-[100svh] lg:min-h-[100svh] ${light ? 'bg-[#f2ecdf] text-slate-950' : 'bg-[#0d1015] text-white'}`}
+            className={`landing-section relative overflow-hidden lg:h-[100svh] lg:min-h-[100svh] ${light ? 'bg-[#f2ecdf] text-slate-950' : 'bg-[#0d1015] text-white'}`}
         >
             <div
                 className={`absolute inset-0 ${light
                     ? 'bg-[radial-gradient(circle_at_18%_24%,rgba(228,218,201,0.76),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(218,226,238,0.44),transparent_24%)]'
                     : 'bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.05),transparent_22%),radial-gradient(circle_at_82%_68%,rgba(255,255,255,0.03),transparent_24%)]'}`}
             />
+            <div className={`pointer-events-none absolute ${reverse ? 'left-[5%]' : 'right-[5%]'} top-1/2 hidden -translate-y-1/2 text-[min(24vw,20rem)] font-semibold leading-none tracking-[-0.08em] lg:block ${light ? 'text-slate-900/[0.035]' : 'text-white/[0.045]'}`}>
+                0{index + 1}
+            </div>
 
             <div className={`relative mx-auto grid max-w-[1580px] items-center gap-16 px-5 py-24 sm:px-6 lg:h-full lg:px-8 ${reverse ? 'lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]' : 'lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]'}`}>
                 <div className={reverse ? 'lg:order-2' : ''}>
-                    <div className="landing-motion max-w-[39rem]" style={delayStyle(delay)}>
+                    <div className="landing-motion max-w-[42rem]" style={delayStyle(delay)}>
                         <p className={`text-[11px] font-medium tracking-[0.22em] ${light ? 'text-slate-400' : 'text-slate-500'}`}>{scene.eyebrow}</p>
                         <h2 className={`mt-6 ${sceneTitleClass(language)}`}>
                             {scene.title}
@@ -341,7 +356,7 @@ function StorySection({
                         </p>
                         <a
                             href={nextHref}
-                            className={`mt-10 inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 ${light ? 'border-slate-300 text-slate-700 hover:border-slate-400' : 'border-white/14 text-slate-200 hover:border-white/26 hover:text-white'}`}
+                            className={`mt-10 inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 ${light ? 'border-slate-300/90 bg-white/70 text-slate-700 hover:border-slate-400 hover:bg-white' : 'border-white/14 bg-white/[0.04] text-slate-200 hover:border-white/26 hover:text-white'}`}
                         >
                             {scene.next}
                             <ArrowRight size={14} />
@@ -442,7 +457,7 @@ function StoryVisual({
 
 function FinalSection({ copy, language }: { copy: CopySchema['finale']; language: SiteLanguage }) {
     return (
-        <section id="finale" className="relative flex min-h-[100svh] items-center overflow-hidden bg-[#07080c] text-white">
+        <section id="finale" className="landing-section relative flex min-h-[100svh] items-center overflow-hidden bg-[#07080c] text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_24%,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_80%_76%,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,#06070b_0%,#0c0e13_100%)]" />
 
             <div className="relative mx-auto flex min-h-[100svh] max-w-[1580px] items-center px-5 py-24 sm:px-6 lg:px-8">

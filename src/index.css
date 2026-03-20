@@ -72,6 +72,11 @@
     letter-spacing: 0;
   }
 
+  html.landing-scroll-snap {
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+  }
+
   html.dark body {
     color: #e5e7eb;
     background-color: var(--color-background-dark);
@@ -196,17 +201,22 @@
   }
 
   .landing-title-zh {
-    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
     font-weight: 580;
     text-wrap: balance;
     font-synthesis-weight: none;
   }
 
   .landing-title-en {
-    font-family: "InterCustom", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "InterCustom", sans-serif;
     font-weight: 680;
     text-wrap: balance;
     font-synthesis-weight: none;
+  }
+
+  .landing-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .landing-lift {
