@@ -20,6 +20,7 @@ export interface DataContextType {
     addSubBalance: (accountId: string, currency: Currency, initialBalance?: number) => void;
     deleteSubBalance: (accountId: string, currency: Currency) => void;
     resetToStarterData: () => void;
+    loadDemoWorkspace: () => void;
     restoreBackupData: () => void;
     hasBackupData: boolean;
     updateExchangeRates: (rates: Partial<ExchangeRates>) => void;

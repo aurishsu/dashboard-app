@@ -144,13 +144,13 @@ export const ASSET_OPTIONS: SetupAssetOption[] = [
     {
         id: 'property',
         title: { zh: '房产', en: 'Property' },
-        note: { zh: '作为扩展资产模板，试用后放到 Plus。', en: 'Comes in as an expanded template after trial.' },
+        note: { zh: '作为扩展资产模板，可在 Plus 打开。', en: 'Comes in as an expanded template inside Plus.' },
         gate: 'plus',
     },
     {
         id: 'vehicle',
         title: { zh: '车产', en: 'Vehicle' },
-        note: { zh: '和房产一样，先作为扩展位保留。', en: 'Also kept as an expanded slot after trial.' },
+        note: { zh: '和房产一样，先保留为 Plus 扩展位。', en: 'Also kept as a Plus expansion slot.' },
         gate: 'plus',
     },
 ];

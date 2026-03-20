@@ -28,6 +28,7 @@ import {
 } from '../types/planner';
 import { DataContext } from './data-context';
 import { advanceMonthlyDueDate, advanceYearlyDueDate } from '../utils/plannerMetrics';
+import { createDemoWorkspace } from '../lib/demoWorkspace';
 
 const STORAGE_KEY = 'finance_accounts_v3';
 const BUDGET_STORAGE_KEY = 'finance_budget_v1';
@@ -36,85 +37,102 @@ const ESSENTIAL_PLAN_STORAGE_KEY = 'finance_essentials_v1';
 const SUPPORT_PLAN_STORAGE_KEY = 'finance_support_v1';
 const SUPPORT_SOURCE_STORAGE_KEY = 'finance_support_sources_v1';
 const BACKUP_STORAGE_KEY = 'personal_ledger_backup_v1';
+const DEMO_SEED_APPLIED_KEY = 'harbor_ledger_demo_seed_v1';
+
+type InitialWorkspace = {
+    accounts: AccountData[];
+    exchangeRates: ExchangeRates;
+    budgetItems: BudgetItem[];
+    reminders: ReminderItem[];
+    essentialPlans: EssentialPlan[];
+    supportPlans: SupportPlan[];
+    supportSources: SupportSource[];
+    hasBackupData: boolean;
+};
+
+let memoizedInitialWorkspace: InitialWorkspace | null = null;
+
+function isZeroStarterWorkspace(accounts: AccountData[], budgetItems: BudgetItem[], reminders: ReminderItem[]) {
+    const starter = createStarterAccounts();
+    const sameIds = accounts.length === starter.length && accounts.every(account => starter.some(template => template.id === account.id));
+    const allZero = accounts.every(account =>
+        account.balance === 0 &&
+        (account.subBalances?.every(subBalance => subBalance.balance === 0) ?? true),
+    );
+
+    return sameIds && allZero && budgetItems.length === 0 && reminders.length === 0;
+}
+
+function createFallbackWorkspace(): InitialWorkspace {
+    return {
+        accounts: createStarterAccounts(),
+        exchangeRates: normalizeExchangeRates(DEFAULT_RATES),
+        budgetItems: [],
+        reminders: [],
+        essentialPlans: STARTER_ESSENTIAL_PLANS.map(plan => ({ ...plan })),
+        supportPlans: DEFAULT_SUPPORT_PLANS.map(plan => ({ ...plan })),
+        supportSources: STARTER_SUPPORT_SOURCES.map(source => ({ ...source })),
+        hasBackupData: false,
+    };
+}
+
+function loadInitialWorkspace(): InitialWorkspace {
+    if (typeof window === 'undefined') {
+        return createFallbackWorkspace();
+    }
+
+    try {
+        const rawAccounts = localStorage.getItem(STORAGE_KEY);
+        const rawRates = localStorage.getItem('finance_rates_v2');
+        const rawBudgetItems = localStorage.getItem(BUDGET_STORAGE_KEY);
+        const rawReminders = localStorage.getItem(REMINDER_STORAGE_KEY);
+        const rawEssentialPlans = localStorage.getItem(ESSENTIAL_PLAN_STORAGE_KEY);
+        const rawSupportPlans = localStorage.getItem(SUPPORT_PLAN_STORAGE_KEY);
+        const rawSupportSources = localStorage.getItem(SUPPORT_SOURCE_STORAGE_KEY);
+
+        const workspace: InitialWorkspace = {
+            accounts: rawAccounts ? normalizeAccounts(JSON.parse(rawAccounts)) : createStarterAccounts(),
+            exchangeRates: rawRates ? normalizeExchangeRates(JSON.parse(rawRates)) : normalizeExchangeRates(DEFAULT_RATES),
+            budgetItems: rawBudgetItems ? normalizeBudgetItems(JSON.parse(rawBudgetItems)) : [],
+            reminders: rawReminders ? normalizeReminders(JSON.parse(rawReminders)) : [],
+            essentialPlans: rawEssentialPlans ? normalizeEssentialPlans(JSON.parse(rawEssentialPlans)) : STARTER_ESSENTIAL_PLANS.map(plan => ({ ...plan })),
+            supportPlans: rawSupportPlans ? normalizeSupportPlans(JSON.parse(rawSupportPlans)) : DEFAULT_SUPPORT_PLANS.map(plan => ({ ...plan })),
+            supportSources: rawSupportSources ? normalizeSupportSources(JSON.parse(rawSupportSources)) : STARTER_SUPPORT_SOURCES.map(source => ({ ...source })),
+            hasBackupData: Boolean(localStorage.getItem(BACKUP_STORAGE_KEY)),
+        };
+
+        const hasAppliedDemoSeed = localStorage.getItem(DEMO_SEED_APPLIED_KEY) === '1';
+        if (!hasAppliedDemoSeed && isZeroStarterWorkspace(workspace.accounts, workspace.budgetItems, workspace.reminders)) {
+            localStorage.setItem(DEMO_SEED_APPLIED_KEY, '1');
+            return {
+                ...createDemoWorkspace(),
+                hasBackupData: workspace.hasBackupData,
+            };
+        }
+
+        return workspace;
+    } catch (error) {
+        console.error('Failed to load initial workspace', error);
+        return createFallbackWorkspace();
+    }
+}
+
+function getInitialWorkspace() {
+    if (memoizedInitialWorkspace === null) {
+        memoizedInitialWorkspace = loadInitialWorkspace();
+    }
+    return memoizedInitialWorkspace;
+}
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-    const [accounts, setAccounts] = useState<AccountData[]>(() => {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) return normalizeAccounts(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load accounts from localStorage', e);
-        }
-        return createStarterAccounts();
-    });
-
-    const [exchangeRates, setExchangeRates] = useState<ExchangeRates>(() => {
-        try {
-            const saved = localStorage.getItem('finance_rates_v2');
-            if (saved) return normalizeExchangeRates(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load rates from localStorage', e);
-        }
-        return normalizeExchangeRates(DEFAULT_RATES);
-    });
-
-    const [budgetItems, setBudgetItems] = useState<BudgetItem[]>(() => {
-        try {
-            const saved = localStorage.getItem(BUDGET_STORAGE_KEY);
-            if (saved) return normalizeBudgetItems(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load budget items from localStorage', e);
-        }
-        return [];
-    });
-
-    const [reminders, setReminders] = useState<ReminderItem[]>(() => {
-        try {
-            const saved = localStorage.getItem(REMINDER_STORAGE_KEY);
-            if (saved) return normalizeReminders(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load reminders from localStorage', e);
-        }
-        return [];
-    });
-
-    const [essentialPlans, setEssentialPlans] = useState<EssentialPlan[]>(() => {
-        try {
-            const saved = localStorage.getItem(ESSENTIAL_PLAN_STORAGE_KEY);
-            if (saved) return normalizeEssentialPlans(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load essential plans from localStorage', e);
-        }
-        return STARTER_ESSENTIAL_PLANS.map(plan => ({ ...plan }));
-    });
-
-    const [supportPlans, setSupportPlans] = useState<SupportPlan[]>(() => {
-        try {
-            const saved = localStorage.getItem(SUPPORT_PLAN_STORAGE_KEY);
-            if (saved) return normalizeSupportPlans(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load support plans from localStorage', e);
-        }
-        return DEFAULT_SUPPORT_PLANS;
-    });
-
-    const [supportSources, setSupportSources] = useState<SupportSource[]>(() => {
-        try {
-            const saved = localStorage.getItem(SUPPORT_SOURCE_STORAGE_KEY);
-            if (saved) return normalizeSupportSources(JSON.parse(saved));
-        } catch (e) {
-            console.error('Failed to load support sources from localStorage', e);
-        }
-        return STARTER_SUPPORT_SOURCES.map(source => ({ ...source }));
-    });
-
-    const [hasBackupData, setHasBackupData] = useState(() => {
-        try {
-            return Boolean(localStorage.getItem(BACKUP_STORAGE_KEY));
-        } catch {
-            return false;
-        }
-    });
+    const [accounts, setAccounts] = useState<AccountData[]>(() => getInitialWorkspace().accounts);
+    const [exchangeRates, setExchangeRates] = useState<ExchangeRates>(() => getInitialWorkspace().exchangeRates);
+    const [budgetItems, setBudgetItems] = useState<BudgetItem[]>(() => getInitialWorkspace().budgetItems);
+    const [reminders, setReminders] = useState<ReminderItem[]>(() => getInitialWorkspace().reminders);
+    const [essentialPlans, setEssentialPlans] = useState<EssentialPlan[]>(() => getInitialWorkspace().essentialPlans);
+    const [supportPlans, setSupportPlans] = useState<SupportPlan[]>(() => getInitialWorkspace().supportPlans);
+    const [supportSources, setSupportSources] = useState<SupportSource[]>(() => getInitialWorkspace().supportSources);
+    const [hasBackupData, setHasBackupData] = useState(() => getInitialWorkspace().hasBackupData);
 
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
@@ -219,7 +237,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }));
     };
 
-    const resetToStarterData = () => {
+    const backupCurrentWorkspace = () => {
         try {
             localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify({
                 accounts,
@@ -234,6 +252,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Failed to backup current local data', error);
         }
+    };
+
+    const resetToStarterData = () => {
+        backupCurrentWorkspace();
 
         setAccounts(createStarterAccounts());
         setExchangeRates(normalizeExchangeRates(DEFAULT_RATES));
@@ -242,6 +264,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setEssentialPlans(STARTER_ESSENTIAL_PLANS.map(plan => ({ ...plan })));
         setSupportPlans(DEFAULT_SUPPORT_PLANS.map(plan => ({ ...plan })));
         setSupportSources(STARTER_SUPPORT_SOURCES.map(source => ({ ...source })));
+    };
+
+    const loadDemoWorkspace = () => {
+        backupCurrentWorkspace();
+
+        const demo = createDemoWorkspace();
+        setAccounts(demo.accounts);
+        setExchangeRates(demo.exchangeRates);
+        setBudgetItems(demo.budgetItems);
+        setReminders(demo.reminders);
+        setEssentialPlans(demo.essentialPlans);
+        setSupportPlans(demo.supportPlans);
+        setSupportSources(demo.supportSources);
     };
 
     const restoreBackupData = () => {
@@ -389,6 +424,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 addSubBalance,
                 deleteSubBalance,
                 resetToStarterData,
+                loadDemoWorkspace,
                 restoreBackupData,
                 hasBackupData,
                 updateExchangeRates,

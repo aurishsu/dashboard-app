@@ -1,296 +1,180 @@
-import { useCallback, useMemo, useState } from 'react';
-import { AlertTriangle, Download, Search, ShieldCheck, X } from 'lucide-react';
+import { ArrowUpRight, MessageSquareText, ShieldCheck, Sparkles } from 'lucide-react';
 import { useData } from '../context/useData';
-import { buildAccountRows, getDistinctCurrencies, getZeroValueAccounts } from '../utils/accountMetrics';
-import type { AccountType } from '../types/data';
-
-const TYPE_LABELS: Record<'all' | AccountType, string> = {
-    all: '全部',
-    bank: '银行卡',
-    wallet: '电子钱包',
-    broker: '券商',
-};
+import { buildAccountRows } from '../utils/accountMetrics';
 
 export function Reports() {
-    const { accounts, totalUSD, toUSD, exchangeRates, budgetItems, reminders, essentialPlans, supportPlans, supportSources } = useData();
-    const [activeType, setActiveType] = useState<'all' | AccountType>('all');
-    const [query, setQuery] = useState('');
-    const [showExportModal, setShowExportModal] = useState(false);
-
-    const handleExport = useCallback((mode: 'full' | 'privacy') => {
-        const now = new Date();
-        const dateStr = now.toISOString().slice(0, 10);
-
-        const exportAccounts = accounts.map((account, index) => {
-            if (mode === 'privacy') {
-                return {
-                    id: account.id,
-                    name: `Account ${index + 1}`,
-                    type: account.type,
-                    currency: account.currency,
-                    balance: account.balance,
-                    subBalances: account.subBalances,
-                    ...(account.type === 'broker' ? { dailyChange: account.dailyChange, dailyChangePct: account.dailyChangePct, buyingPower: account.buyingPower } : {}),
-                };
-            }
-            const { ...full } = account;
-            return full;
-        });
-
-        const exportData = {
-            version: '1.0',
-            generated_at: now.toISOString(),
-            ai_prompt_hint: 'Paste this JSON into ChatGPT or Claude and ask: Analyze my financial health and give me actionable advice.',
-            exchange_rates: exchangeRates,
-            total_usd: totalUSD,
-            accounts: exportAccounts,
-            budget_items: budgetItems,
-            reminders,
-            essential_plans: essentialPlans,
-            support_plans: supportPlans,
-            support_sources: supportSources,
-        };
-
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `harbor-ledger-export-${dateStr}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setShowExportModal(false);
-    }, [accounts, exchangeRates, totalUSD, budgetItems, reminders, essentialPlans, supportPlans, supportSources]);
-
-    const accountRows = useMemo(() => buildAccountRows(accounts, toUSD), [accounts, toUSD]);
-    const zeroValueAccounts = useMemo(() => getZeroValueAccounts(accounts, toUSD), [accounts, toUSD]);
-    const distinctCurrencies = useMemo(() => getDistinctCurrencies(accounts), [accounts]);
-
-    const filteredRows = useMemo(() => {
-        const normalizedQuery = query.trim().toLowerCase();
-        return accountRows.filter(row => {
-            const matchesType = activeType === 'all' || row.account.type === activeType;
-            const matchesQuery =
-                normalizedQuery.length === 0 ||
-                row.account.name.toLowerCase().includes(normalizedQuery) ||
-                row.account.currency.toLowerCase().includes(normalizedQuery) ||
-                row.account.id.toLowerCase().includes(normalizedQuery);
-            return matchesType && matchesQuery;
-        });
-    }, [accountRows, activeType, query]);
-
-    const multiCurrencyCount = accounts.filter(account => (account.subBalances?.length || 0) > 0).length;
-    const largestAccount = accountRows[0];
+    const { accounts, totalUSD, toUSD, essentialPlans } = useData();
+    const accountRows = buildAccountRows(accounts, toUSD);
+    const topAccount = accountRows[0];
+    const topTwoShare = accountRows.slice(0, 2).reduce((sum, row) => sum + row.share, 0);
+    const monthlyNeed = essentialPlans
+        .filter(plan => plan.enabled && plan.frequency === 'monthly')
+        .reduce((sum, plan) => sum + toUSD(plan.amount, plan.currency), 0);
 
     return (
-        <div className="mx-auto max-w-7xl space-y-8 animate-in fade-in duration-500">
-            <section className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
-                <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex flex-col gap-3">
-                        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                            <ShieldCheck size={14} />
-                            Ledger Review
+        <div className="w-full space-y-8 animate-in fade-in duration-500">
+            <section className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+                <div className="surface-card overflow-hidden p-8">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <MessageSquareText size={14} />
+                        AI ASSISTANT
+                    </div>
+                    <div className="mt-5">
+                        <h1 className="text-[clamp(2.4rem,4vw,3.8rem)] font-black tracking-[-0.06em] text-slate-900 dark:text-white">
+                            这里以后不再是报表，而是直接和你的资产桌面对话
+                        </h1>
+                        <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-500 dark:text-slate-400">
+                            以后你在这里直接问问题，例如“我现在买这件东西会不会太勉强”“哪个账户更适合支出”“我的钱是不是太分散了”。
+                        </p>
+                    </div>
+
+                    <div className="mt-8 grid gap-4 md:grid-cols-3">
+                        <MetricCard
+                            label="当前总资产"
+                            value={formatUsd(totalUSD)}
+                            note="AI 会围绕你当前桌面回答"
+                        />
+                        <MetricCard
+                            label="最大账户"
+                            value={topAccount ? topAccount.account.name : '暂无'}
+                            note={topAccount ? `${topAccount.share.toFixed(1)}% of portfolio` : '继续录入后会自动更新'}
+                        />
+                        <MetricCard
+                            label="每月固定压力"
+                            value={formatUsd(monthlyNeed)}
+                            note="来自已启用的月度固定支出"
+                        />
+                    </div>
+                </div>
+
+                <div className="surface-card p-6">
+                    <div className="flex items-center gap-2 text-slate-900 dark:text-white">
+                        <ShieldCheck size={18} />
+                        <h2 className="text-lg font-black">对话边界</h2>
+                    </div>
+                    <div className="mt-6 space-y-4">
+                        <NoticeCard
+                            title="它给的是建议，不是替你做决定"
+                            body="你可以拿它来判断支出压力、资产集中度和现金缓冲，但最后决定还是由你自己来做。"
+                        />
+                        <NoticeCard
+                            title="先看你已经放进来的数据"
+                            body="AI 会围绕你已经确认过的账户、预算和固定支出继续追问，不会跳出这张桌面乱讲。"
+                        />
+                        <NoticeCard
+                            title="不需要报表页面了"
+                            body="后续导出和分析也会从这里发起，重点变成提问、对话和继续确认。"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <section className="surface-card p-6">
+                <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+                    <div className="rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)]">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Conversation</p>
+                                <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">AI 对话区</h2>
+                            </div>
+                            <span className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-semibold text-white dark:bg-white dark:text-slate-950">
+                                <Sparkles size={14} />
+                                Soon
+                            </span>
                         </div>
-                        <div>
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">报表与检查</h1>
+
+                        <div className="mt-6 space-y-4">
+                            <ChatBubble side="user" body="如果我现在想买一个 2000 澳元的沙发，会不会让这个月太紧？" />
+                            <ChatBubble
+                                side="assistant"
+                                body={`基于你当前桌面里的固定月支出 ${formatUsd(monthlyNeed)} 和总资产 ${formatUsd(totalUSD)}，这类问题以后会直接在这里给你分层回答。`}
+                            />
+                            <ChatBubble
+                                side="assistant"
+                                body={topAccount
+                                    ? `${topAccount.account.name} 现在是最大账户，占组合 ${topAccount.share.toFixed(1)}%。我也会顺手提醒你要不要先从别的账户腾挪。`
+                                    : '等数据继续接进来以后，这里会自动结合账户分布继续判断。'}
+                            />
+                        </div>
+
+                        <div className="mt-6 rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+                            <div className="flex items-center justify-between gap-3">
+                                <input
+                                    type="text"
+                                    value=""
+                                    readOnly
+                                    placeholder="以后你会在这里继续追问，例如：我这个月还能再花多少？"
+                                    className="w-full bg-transparent text-sm text-slate-500 outline-none dark:text-slate-400"
+                                />
                                 <button
                                     type="button"
-                                    onClick={() => setShowExportModal(true)}
-                                    className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                    disabled
+                                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white opacity-60 dark:bg-white dark:text-slate-950"
                                 >
-                                    <Download size={16} />
-                                    导出数据 / Export
+                                    发送
+                                    <ArrowUpRight size={14} />
                                 </button>
                             </div>
-                            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                                账户清单检查，帮助你快速发现该补、该删、该整理的地方。支持导出全部数据为 JSON 文件。
-                            </p>
                         </div>
                     </div>
 
-                    <div className="mt-8 grid gap-4 md:grid-cols-4">
-                        <SummaryCard label="纳入统计账户" value={String(accounts.length)} note="当前工作区内全部账户" />
-                        <SummaryCard
-                            label="总折算美元"
-                            value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalUSD)}
-                            note="用于横向比较"
-                        />
-                        <SummaryCard label="零余额账户" value={String(zeroValueAccounts.length)} note="建议定期清理或归档" />
-                        <SummaryCard label="覆盖币种" value={String(distinctCurrencies.length)} note={distinctCurrencies.join(' / ')} />
-                    </div>
-                </div>
-
-                <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <h2 className="text-lg font-black text-slate-900 dark:text-white">检查结论</h2>
-                    <div className="mt-6 space-y-4">
-                        <InsightCard
-                            icon={<AlertTriangle size={16} className="text-amber-500" />}
-                            title="待清理项"
-                            body={zeroValueAccounts.length > 0
-                                ? `当前有 ${zeroValueAccounts.length} 个零余额账户，容易占掉注意力。`
-                                : '当前没有零余额账户。'}
-                        />
-                        <InsightCard
-                            icon={<ShieldCheck size={16} className="text-emerald-500" />}
-                            title="多币种覆盖"
-                            body={`共有 ${multiCurrencyCount} 个账户含副币种记录，适合继续保持“主币种 + 副币种余额”这种结构。`}
-                        />
-                        <InsightCard
-                            icon={<ShieldCheck size={16} className="text-slate-700 dark:text-slate-200" />}
-                            title="最大账户"
-                            body={largestAccount ? `${largestAccount.account.name} 目前是最大账户，占整体 ${largestAccount.share.toFixed(1)}%。` : '暂无足够数据。'}
-                        />
+                    <div className="space-y-4">
+                        <PromptCard title="我现在能不能花这笔钱？" body="结合固定支出、现金缓冲和最大账户占比，给你一份更像真人助理的判断。" />
+                        <PromptCard title="哪个账户更适合支出？" body="按币种、用途和当前分布，告诉你这笔开销放在哪个入口更顺手。" />
+                        <PromptCard title="我的钱是不是太分散了？" body={`现在前两个最大入口已经占到 ${topTwoShare.toFixed(1)}%，AI 会继续往下帮你判断是不是该再集中一点。`} />
                     </div>
                 </div>
             </section>
-
-            <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex flex-wrap gap-2">
-                        {(['all', 'bank', 'wallet', 'broker'] as const).map(type => (
-                            <button
-                                key={type}
-                                type="button"
-                                onClick={() => setActiveType(type)}
-                                className={`rounded-full px-4 py-2 text-sm font-bold transition ${activeType === type ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 text-slate-500 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white'}`}
-                            >
-                                {TYPE_LABELS[type]}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="relative w-full lg:w-80">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={event => setQuery(event.target.value)}
-                            placeholder="搜索账户名、币种或 id..."
-                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                    </div>
-                </div>
-
-                <div className="mt-6 overflow-x-auto">
-                    <table className="w-full min-w-[840px] text-left">
-                        <thead>
-                            <tr className="border-b border-slate-100 text-xs font-bold uppercase tracking-[0.24em] text-slate-400 dark:border-slate-800">
-                                <th className="px-2 py-4">账户</th>
-                                <th className="px-2 py-4">类型</th>
-                                <th className="px-2 py-4">主币种</th>
-                                <th className="px-2 py-4">本币余额</th>
-                                <th className="px-2 py-4">折算美元</th>
-                                <th className="px-2 py-4">币种记录数</th>
-                                <th className="px-2 py-4">检查备注</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredRows.map(row => (
-                                <tr key={row.account.id} className="border-b border-slate-50 align-top dark:border-slate-900">
-                                    <td className="px-2 py-4">
-                                        <p className="font-bold text-slate-900 dark:text-white">{row.account.name}</p>
-                                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{row.account.id}</p>
-                                    </td>
-                                    <td className="px-2 py-4 text-sm text-slate-500 dark:text-slate-400">{TYPE_LABELS[row.account.type]}</td>
-                                    <td className="px-2 py-4 font-medium text-slate-700 dark:text-slate-200">{row.account.currency}</td>
-                                    <td className="px-2 py-4 font-medium text-slate-700 dark:text-slate-200">
-                                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: row.account.currency }).format(row.account.balance)}
-                                    </td>
-                                    <td className="px-2 py-4 font-black text-slate-900 dark:text-white">
-                                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(row.usdValue)}
-                                    </td>
-                                    <td className="px-2 py-4 text-sm font-bold text-slate-700 dark:text-slate-200">{row.currencyCount}</td>
-                                    <td className="px-2 py-4">
-                                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                                            {row.usdValue === 0
-                                                ? '零余额'
-                                                : row.currencyCount > 1
-                                                    ? '多币种'
-                                                    : '正常'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                    <p>当前显示 {filteredRows.length} 个账户。</p>
-                    <p>筛选和搜索都基于真实账户数据，不再展示伪造的交易流水。</p>
-                </div>
-            </section>
-
-            {showExportModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowExportModal(false)}>
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-slate-900" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white">导出数据 / Export Data</h2>
-                            <button onClick={() => setShowExportModal(false)} className="rounded-full p-2 transition hover:bg-slate-100 dark:hover:bg-slate-800">
-                                <X size={20} className="text-slate-500" />
-                            </button>
-                        </div>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                            选择导出模式。JSON 文件包含账户、余额、汇率、预算计划等全部数据。
-                            <br />
-                            <span className="text-slate-400 dark:text-slate-500">Choose export mode. The JSON file includes accounts, balances, exchange rates, and budget plans.</span>
-                        </p>
-                        <div className="space-y-3">
-                            <button
-                                type="button"
-                                onClick={() => handleExport('full')}
-                                className="flex w-full items-center gap-4 rounded-2xl border-2 border-slate-200 p-5 text-left transition hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
-                            >
-                                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
-                                    <Download size={18} className="text-slate-600 dark:text-slate-300" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-white">完整导出 / Full Export</p>
-                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">包含账户名称、卡号、持卡人等所有明细 / Includes account names, card numbers, all details</p>
-                                </div>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleExport('privacy')}
-                                className="flex w-full items-center gap-4 rounded-2xl border-2 border-slate-200 p-5 text-left transition hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
-                            >
-                                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
-                                    <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-white">隐私导出 / Privacy Export</p>
-                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">隐藏账户名称和卡号，用通用标签替代 / Hides account names & card numbers, uses generic labels</p>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
 
-function SummaryCard({ label, value, note }: { label: string; value: string; note: string }) {
+function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
     return (
-        <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">{label}</p>
-            <p className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{value}</p>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{note}</p>
+        <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-800 dark:bg-slate-950">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{label}</p>
+            <p className="metric-value mt-3 text-2xl">{value}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{note}</p>
         </div>
     );
 }
 
-function InsightCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+function NoticeCard({ title, body }: { title: string; body: string }) {
     return (
         <div className="rounded-[24px] bg-slate-50 p-5 dark:bg-slate-950">
-            <div className="flex items-center gap-2">
-                {icon}
-                <p className="font-black text-slate-900 dark:text-white">{title}</p>
-            </div>
+            <p className="text-lg font-black text-slate-900 dark:text-white">{title}</p>
             <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{body}</p>
         </div>
     );
+}
+
+function ChatBubble({ side, body }: { side: 'user' | 'assistant'; body: string }) {
+    const isUser = side === 'user';
+
+    return (
+        <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+            <div
+                className={`max-w-[85%] rounded-[24px] px-5 py-4 text-sm leading-7 ${
+                    isUser
+                        ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950'
+                        : 'border border-slate-200 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
+                }`}
+            >
+                {body}
+            </div>
+        </div>
+    );
+}
+
+function PromptCard({ title, body }: { title: string; body: string }) {
+    return (
+        <div className="surface-card p-5">
+            <p className="text-lg font-black text-slate-900 dark:text-white">{title}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{body}</p>
+        </div>
+    );
+}
+
+function formatUsd(value: number) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 }
