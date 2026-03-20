@@ -139,12 +139,6 @@ export function AssetOverview() {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
-                                    <HeroPill label={largestCurrency ? `主要币种 ${largestCurrency.label} ${largestCurrency.share.toFixed(1)}%` : '等待更多数据'} emphasis />
-                                    <HeroPill label={largestAccount ? `最大账户 ${largestAccount.account.name}` : '暂无最大账户'} />
-                                    <HeroPill label={`${accounts.length} 个账户`} />
-                                    <HeroPill label={`${distinctCurrencies.length} 个币种`} />
-                                </div>
                             </div>
 
                             <div className="surface-soft p-5">
@@ -167,11 +161,10 @@ export function AssetOverview() {
                         </div>
                     </section>
 
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         <SummaryCard label="账户总数" value={String(accounts.length)} note="当前纳入统计的账户" />
                         <SummaryCard label="覆盖币种" value={String(distinctCurrencies.length)} note={distinctCurrencies.join(' / ')} />
-                        <SummaryCard label="多币种账户" value={String(multiCurrencyAccounts.length)} note="含副币种余额记录" />
-                        <SummaryCard label="零余额账户" value={String(zeroValueAccounts.length)} note="适合定期清理或隐藏" />
+                        <SummaryCard label="待复核事项" value={String(reviewCount)} note="零余额、多币种和集中度提醒" />
                     </div>
 
                     <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr]">
@@ -448,14 +441,6 @@ function FocusRow({ label, value }: { label: string; value: string }) {
         <div className="flex items-center justify-between gap-4 rounded-[14px] bg-white px-4 py-3 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
             <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
             <p className="text-sm font-semibold text-slate-900 dark:text-white">{value}</p>
-        </div>
-    );
-}
-
-function HeroPill({ label, emphasis }: { label: string; emphasis?: boolean }) {
-    return (
-        <div className={`rounded-full px-4 py-2 text-xs font-semibold ${emphasis ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950' : 'bg-white text-slate-600 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700'}`}>
-            {label}
         </div>
     );
 }

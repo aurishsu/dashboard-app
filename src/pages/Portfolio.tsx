@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, Landmark, Layers3, WalletCards } from 'lucide-react';
+import { ArrowUpRight, Landmark, Layers3 } from 'lucide-react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { useData } from '../context/useData';
 import { buildAccountRows, buildCurrencyBreakdown, buildTypeBreakdown } from '../utils/accountMetrics';
@@ -104,10 +104,15 @@ export function Portfolio() {
 
     const distributionRows = mode === 'category' ? categoryRows : accountDistributionRows;
     const topAccount = accountRows[0];
+    const rankedAccounts = accountRows.filter(row => row.usdValue > 0);
+    const leadingAccounts = rankedAccounts.slice(0, 5);
+    const remainingAccounts = rankedAccounts.slice(5);
+    const remainingShare = remainingAccounts.reduce((sum, row) => sum + row.share, 0);
     const bankAndWalletUSD = accountRows
         .filter(row => row.account.type !== 'broker')
         .reduce((sum, row) => sum + row.usdValue, 0);
-    const largestCurrency = currencyBreakdown[0];
+    const leadingDistribution = distributionRows[0];
+    const detailedRows = mode === 'category' ? categoryRows : accountDistributionRows.slice(0, 6);
 
     return (
         <div className="w-full space-y-8 animate-in fade-in duration-500">
@@ -118,7 +123,7 @@ export function Portfolio() {
                             <Layers3 size={14} />
                             PORTFOLIO
                         </div>
-                        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                        <div className="flex flex-col gap-5">
                             <div>
                                 <h1 className="text-[clamp(2.4rem,4vw,3.6rem)] font-black tracking-[-0.06em] text-slate-900 dark:text-white">
                                     先看结构，再看每个入口在整体里站哪一段
@@ -127,22 +132,9 @@ export function Portfolio() {
                                     这一页先回答两件事：钱主要堆在哪一类入口里，以及每一个具体账户在整个组合里各占多少。
                                 </p>
                             </div>
-                            <div className="grid gap-3 sm:grid-cols-3">
-                                <TopMetric
-                                    label="组合总额"
-                                    value={formatUsd(totalUSD)}
-                                    note="按当前汇率折算"
-                                />
-                                <TopMetric
-                                    label="最大账户"
-                                    value={topAccount ? `${topAccount.share.toFixed(1)}%` : '0%'}
-                                    note={topAccount ? topAccount.account.name : '暂无数据'}
-                                />
-                                <TopMetric
-                                    label="流动性占比"
-                                    value={totalUSD > 0 ? `${((bankAndWalletUSD / totalUSD) * 100).toFixed(1)}%` : '0%'}
-                                    note="银行卡 + 钱包"
-                                />
+                            <div className="flex flex-wrap gap-2">
+                                <HeroChip label={`组合总额 ${formatUsd(totalUSD)}`} emphasis />
+                                <HeroChip label={`${rankedAccounts.length} 个有效账户 / ${currencyBreakdown.length} 个币种`} />
                             </div>
                         </div>
                     </div>
@@ -159,19 +151,14 @@ export function Portfolio() {
                             body={topAccount ? `${topAccount.account.name} 目前占整个组合 ${topAccount.share.toFixed(1)}%。` : '继续录入后，这里会自动抓出当前最大的账户。'}
                         />
                         <InsightCard
-                            title="主币种暴露"
-                            body={largestCurrency ? `${largestCurrency.label} 当前占全部资产 ${largestCurrency.share.toFixed(1)}%。` : '继续录入后，这里会自动总结主币种暴露。'}
-                        />
-                        <InsightCard
-                            title="优先顺序"
-                            body="先看这一页的整体分布，再决定要不要点进具体账户做维护。"
+                            title="先看的重点"
+                            body="先看这一页的大类和账户占比，再决定要不要点进具体账户做维护。"
                         />
                     </div>
                 </div>
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
-                <div className="surface-card p-6">
+            <section className="surface-card p-6">
                     <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                             <h2 className="text-2xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">资产分布</h2>
@@ -190,158 +177,136 @@ export function Portfolio() {
                     <div className="mt-6 rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#101827_0%,#0f172a_100%)]">
                         <SegmentedRail rows={distributionRows} />
 
-                        <div className="mt-6 grid gap-6 lg:grid-cols-[320px_1fr] lg:items-center">
-                            <div className="relative h-[18rem]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={distributionRows}
-                                            dataKey="usdValue"
-                                            innerRadius={78}
-                                            outerRadius={114}
-                                            paddingAngle={4}
-                                            stroke="none"
-                                            animationDuration={760}
-                                        >
-                                            {distributionRows.map(row => (
-                                                <Cell key={row.key} fill={row.color} />
-                                            ))}
-                                        </Pie>
-                                        <RechartsTooltip
-                                            formatter={(value: number | string | undefined) => [formatUsd(Number(value ?? 0)), 'USD']}
-                                            contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)' }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                        <div className="mt-6 grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+                            <div className="space-y-4">
+                                <div className="relative h-[18rem]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={distributionRows}
+                                                dataKey="usdValue"
+                                                innerRadius={78}
+                                                outerRadius={114}
+                                                paddingAngle={4}
+                                                stroke="none"
+                                                animationDuration={760}
+                                            >
+                                                {distributionRows.map(row => (
+                                                    <Cell key={row.key} fill={row.color} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip
+                                                formatter={(value: number | string | undefined) => [formatUsd(Number(value ?? 0)), 'USD']}
+                                                contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)' }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
 
-                                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                                    <p className="text-[12px] font-semibold text-slate-400 dark:text-slate-500">{mode === 'category' ? '大类' : '账户'}</p>
-                                    <p className="metric-value mt-2 text-4xl">{distributionRows.length}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">个分布单元</p>
+                                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                        <p className="text-[12px] font-semibold text-slate-400 dark:text-slate-500">{mode === 'category' ? '大类' : '账户'}</p>
+                                        <p className="metric-value mt-2 text-4xl">{distributionRows.length}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">个分布单元</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-3">
+                                    <DistributionFocusCard
+                                        label={mode === 'category' ? '最大类别' : '最大账户'}
+                                        value={leadingDistribution ? leadingDistribution.label : '等待更多数据'}
+                                        note={leadingDistribution ? `${leadingDistribution.share.toFixed(1)}% / ${formatUsd(leadingDistribution.usdValue)}` : '继续录入后自动更新'}
+                                    />
+                                    <DistributionFocusCard
+                                        label={mode === 'category' ? '流动性占比' : '前五账户合计'}
+                                        value={
+                                            mode === 'category'
+                                                ? `${totalUSD > 0 ? ((bankAndWalletUSD / totalUSD) * 100).toFixed(1) : '0.0'}%`
+                                                : `${leadingAccounts.reduce((sum, row) => sum + row.share, 0).toFixed(1)}%`
+                                        }
+                                        note={
+                                            mode === 'category'
+                                                ? '银行卡 + 钱包'
+                                                : remainingAccounts.length > 0
+                                                    ? `剩余 ${remainingAccounts.length} 个账户合计 ${remainingShare.toFixed(1)}%`
+                                                    : '当前已经全部展开'
+                                        }
+                                    />
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                {distributionRows.map(row => (
-                                    <DistributionRowCard key={row.key} row={row} mode={mode} />
-                                ))}
+                                {mode === 'category'
+                                    ? detailedRows.map(row => (
+                                        <DistributionSummaryRow
+                                            key={row.key}
+                                            color={row.color}
+                                            label={row.label}
+                                            meta={`${row.count} 个账户`}
+                                            share={row.share}
+                                            value={formatUsd(row.usdValue)}
+                                        />
+                                    ))
+                                    : leadingAccounts.map(row => (
+                                        <DistributionSummaryRow
+                                            key={row.account.id}
+                                            color={getAccountAppearance(row.account.id).color}
+                                            label={row.account.name}
+                                            meta={`${TYPE_META[row.account.type].label} / ${row.currencyCount} 个币种`}
+                                            share={row.share}
+                                            value={formatUsd(row.usdValue)}
+                                            badge={getAccountAppearance(row.account.id).badge}
+                                            badgeClass={getAccountAppearance(row.account.id).badgeClass}
+                                        />
+                                    ))}
+
+                                {mode === 'account' && remainingAccounts.length > 0 && (
+                                    <div className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                            其余 {remainingAccounts.length} 个账户合计占 {remainingShare.toFixed(1)}%
+                                        </p>
+                                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                                            上面先保留最值得先看的账户，剩余部分继续算在整张分布里，不再重复铺满一整列。
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
+            </section>
+
+            <section className="surface-card p-6">
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-5 dark:border-slate-800">
+                    <div>
+                        <h2 className="text-2xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">币种分布</h2>
+                        <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">先看真实暴露，再看这些币种分别落在哪些账户里。</p>
+                    </div>
+                    <ArrowUpRight size={18} className="text-slate-400" />
                 </div>
 
-                <div className="surface-card p-6">
-                    <div className="flex items-end justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white">账户集中度排名</h2>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">具体到每张卡、每个钱包和每个券商入口。</p>
-                        </div>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                            <WalletCards size={14} />
-                            全部账户
-                        </div>
-                    </div>
+                <div className="mt-6 rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)]">
+                    <SegmentedRail rows={currencyBreakdown.map(row => ({
+                        ...row,
+                        color: getCurrencyColor(row.key),
+                        badge: row.label,
+                    }))} />
 
-                    <div className="mt-6 space-y-4">
-                        {accountRows.map(row => (
-                            <div key={row.account.id} className="rounded-[24px] bg-slate-50 p-4 dark:bg-slate-950">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`h-11 w-2 shrink-0 rounded-full ${getAccountAppearance(row.account.id).stripe}`} />
-                                            <div className="min-w-0">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <p className="truncate font-black text-slate-900 dark:text-white">{row.account.name}</p>
-                                                    <BrandBadge accountId={row.account.id} />
-                                                </div>
-                                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                    {TYPE_META[row.account.type].label} / 主币种 {row.account.currency} / {row.currencyCount} 个币种
-                                                </p>
-                                            </div>
+                    <div className="mt-6 grid gap-3 xl:grid-cols-2">
+                        {currencyBreakdown.map(row => (
+                            <div key={row.key} className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="size-3 rounded-full" style={{ backgroundColor: getCurrencyColor(row.key) }} />
+                                        <div>
+                                            <p className="text-xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">{row.label}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">出现于 {row.count} 条余额记录</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="metric-value text-[1.6rem]">{formatUsd(row.usdValue)}</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">{row.share.toFixed(1)}%</p>
+                                        <p className="metric-value text-xl">{row.share.toFixed(1)}%</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">{formatUsd(row.usdValue)}</p>
                                     </div>
                                 </div>
-                                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white dark:bg-slate-900">
-                                    <div
-                                        className={`h-full rounded-full ${getAccountAppearance(row.account.id).stripe}`}
-                                        style={{ width: `${row.share}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="surface-card p-6">
-                    <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-5 dark:border-slate-800">
-                        <div>
-                            <h2 className="text-2xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">币种分布</h2>
-                            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">先看真实暴露，再看这些币种分别落在哪些账户里。</p>
-                        </div>
-                        <ArrowUpRight size={18} className="text-slate-400" />
-                    </div>
-
-                    <div className="mt-6 rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)]">
-                        <SegmentedRail rows={currencyBreakdown.map(row => ({
-                            ...row,
-                            color: getCurrencyColor(row.key),
-                            badge: row.label,
-                        }))} />
-
-                        <div className="mt-6 grid gap-3">
-                            {currencyBreakdown.map(row => (
-                                <div key={row.key} className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-                                    <div className="flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-3">
-                                            <span className="size-3 rounded-full" style={{ backgroundColor: getCurrencyColor(row.key) }} />
-                                            <div>
-                                                <p className="text-xl font-black tracking-[-0.05em] text-slate-900 dark:text-white">{row.label}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">出现于 {row.count} 条余额记录</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="metric-value text-xl">{row.share.toFixed(1)}%</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">{formatUsd(row.usdValue)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                        <div className="h-full rounded-full" style={{ width: `${row.share}%`, backgroundColor: getCurrencyColor(row.key) }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="surface-card p-6">
-                    <div>
-                        <h2 className="text-xl font-black text-slate-900 dark:text-white">明细切片</h2>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">把具体账户的品牌识别和金额排在一起，方便一眼判断是不是过于分散。</p>
-                    </div>
-                    <div className="mt-6 space-y-3">
-                        {accountRows.map(row => (
-                            <div key={row.account.id} className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`h-10 w-1.5 shrink-0 rounded-full ${getAccountAppearance(row.account.id).stripe}`} />
-                                            <div className="min-w-0">
-                                                <p className="truncate font-black text-slate-900 dark:text-white">{row.account.name}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{row.account.currency} / {TYPE_META[row.account.type].label}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <BrandBadge accountId={row.account.id} />
-                                </div>
-                                <div className="mt-4 flex items-end justify-between gap-4">
-                                    <p className="metric-value text-2xl">{formatUsd(row.usdValue)}</p>
-                                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{row.share.toFixed(1)}%</p>
+                                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                    <div className="h-full rounded-full" style={{ width: `${row.share}%`, backgroundColor: getCurrencyColor(row.key) }} />
                                 </div>
                             </div>
                         ))}
@@ -374,13 +339,14 @@ function ViewToggle({
     );
 }
 
-function TopMetric({ label, value, note }: { label: string; value: string; note: string }) {
+function HeroChip({ label, emphasis }: { label: string; emphasis?: boolean }) {
     return (
-        <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-800 dark:bg-slate-950">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{label}</p>
-            <p className="metric-value mt-3 text-2xl">{value}</p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{note}</p>
-        </div>
+        <span className={emphasis
+            ? 'inline-flex rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white dark:bg-white dark:text-slate-950'
+            : 'inline-flex rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}
+        >
+            {label}
+        </span>
     );
 }
 
@@ -417,36 +383,64 @@ function SegmentedRail({ rows }: { rows: Array<{ key: string; share: number; col
     );
 }
 
-function DistributionRowCard({ row, mode }: { row: DistributionRow; mode: DistributionMode }) {
+function DistributionFocusCard({
+    label,
+    value,
+    note,
+}: {
+    label: string;
+    value: string;
+    note: string;
+}) {
     return (
         <div className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-            <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                    <div className="flex items-center gap-3">
-                        <span className="size-3 rounded-full" style={{ backgroundColor: row.color }} />
-                        <div className="min-w-0">
-                            <p className="truncate font-black text-slate-900 dark:text-white">{row.label}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {mode === 'category' ? `${row.count} 个账户` : `${row.count} 个币种记录`}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="text-right">
-                    <p className="metric-value text-xl">{row.share.toFixed(1)}%</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatUsd(row.usdValue)}</p>
-                </div>
-            </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                <div className="h-full rounded-full" style={{ width: `${row.share}%`, backgroundColor: row.color }} />
-            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{label}</p>
+            <p className="mt-3 text-[1.4rem] font-black leading-[1.05] tracking-[-0.04em] text-slate-900 dark:text-white">{value}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{note}</p>
         </div>
     );
 }
 
-function BrandBadge({ accountId }: { accountId: string }) {
-    const accent = getAccountAppearance(accountId);
-    return <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 ${accent.badgeClass}`}>{accent.badge}</span>;
+function DistributionSummaryRow({
+    color,
+    label,
+    meta,
+    share,
+    value,
+    badge,
+    badgeClass,
+}: {
+    color: string;
+    label: string;
+    meta: string;
+    share: number;
+    value: string;
+    badge?: string;
+    badgeClass?: string;
+}) {
+    return (
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                        <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                        <p className="truncate text-lg font-black tracking-[-0.04em] text-slate-900 dark:text-white">{label}</p>
+                        {badge && badgeClass && (
+                            <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 ${badgeClass}`}>{badge}</span>
+                        )}
+                    </div>
+                    <p className="mt-1 pl-6 text-sm text-slate-500 dark:text-slate-400">{meta}</p>
+                </div>
+                <div className="text-right">
+                    <p className="metric-value text-2xl">{share.toFixed(1)}%</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{value}</p>
+                </div>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-full rounded-full" style={{ width: `${share}%`, backgroundColor: color }} />
+            </div>
+        </div>
+    );
 }
 
 function getAccountAppearance(accountId: string) {

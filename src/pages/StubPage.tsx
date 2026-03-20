@@ -1,3 +1,4 @@
+import { Construction } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 export function StubPage() {
@@ -8,7 +9,7 @@ export function StubPage() {
     return (
         <div className="flex flex-col items-center justify-center h-[70vh] text-slate-500 animate-in fade-in zoom-in-95 duration-500">
             <div className="size-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-inner">
-                <span className="material-symbols-outlined text-[48px] text-slate-300 dark:text-slate-600">construction</span>
+                <Construction size={48} className="text-slate-300 dark:text-slate-600" />
             </div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
                 {displayTitle} - 建设中

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Building2, CreditCard, Plus, WalletCards, X } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useData } from '../context/useData';
 import {
@@ -45,10 +46,10 @@ const linkClasses = ({ isActive }: { isActive: boolean }) =>
 const dotClasses = (isActive: boolean) =>
     `size-2 rounded-full shadow-sm transition-colors duration-200 shrink-0 ${isActive ? 'bg-slate-950 dark:bg-white' : 'bg-slate-300 dark:bg-slate-600'}`;
 
-const SectionHeader = ({ icon, label }: { icon: string; label: string }) => (
+const SectionHeader = ({ icon: Icon, label }: { icon: typeof CreditCard; label: string }) => (
     <div className="mb-3 flex items-center gap-2 px-6">
-        <span className="material-symbols-outlined text-sm text-slate-400">{icon}</span>
-        <span className="text-[12px] font-semibold text-slate-500 dark:text-slate-400">{label}</span>
+        <Icon size={16} className="text-slate-400" />
+        <span className="text-[12px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400">{label}</span>
     </div>
 );
 
@@ -135,7 +136,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
     const totalAccounts = accounts.length;
     const asideClassName = isDrawer
         ? 'flex h-full w-full max-w-[360px] flex-col overflow-hidden rounded-r-[28px] border-r border-slate-200 bg-white py-5 shadow-[0_18px_48px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-[#111a28]'
-        : 'sticky top-4 mr-4 flex min-h-[calc(100vh-6.75rem)] w-[320px] shrink-0 self-start flex-col rounded-[28px] border border-slate-200 bg-white py-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-[#111a28] 2xl:mr-5 2xl:w-[336px]';
+        : 'sticky top-4 mr-4 flex min-h-[calc(100vh-6.75rem)] w-[336px] shrink-0 self-start flex-col rounded-[28px] border border-slate-200 bg-white py-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-[#111a28] 2xl:mr-5 2xl:w-[352px]';
 
     return (
         <>
@@ -154,7 +155,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
                                 aria-label="添加新账户"
                                 title="添加新账户"
                             >
-                                <span className="material-symbols-outlined text-[20px]">add</span>
+                                <Plus size={20} />
                             </button>
                             {isDrawer && (
                                 <button
@@ -163,7 +164,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
                                     aria-label="关闭侧边栏"
                                     title="关闭侧边栏"
                                 >
-                                    <span className="material-symbols-outlined text-[20px]">close</span>
+                                    <X size={20} />
                                 </button>
                             )}
                         </div>
@@ -173,7 +174,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
                 <div className="flex-1 space-y-8 overflow-y-auto px-1 pt-6 pb-4">
                     {banks.length > 0 && (
                         <div>
-                            <SectionHeader icon="credit_card" label="银行卡" />
+                            <SectionHeader icon={CreditCard} label="银行卡" />
                             <div className="space-y-1.5">
                                 {groupedBanks.map(acc => (
                                     <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
@@ -204,7 +205,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
 
                     {wallets.length > 0 && (
                         <div>
-                            <SectionHeader icon="account_balance_wallet" label="手机钱包" />
+                            <SectionHeader icon={WalletCards} label="手机钱包" />
                             <div className="space-y-1.5">
                                 {wallets.map(acc => (
                                     <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
@@ -222,7 +223,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
 
                     {brokers.length > 0 && (
                         <div>
-                            <SectionHeader icon="monitoring" label="券商" />
+                            <SectionHeader icon={Building2} label="券商" />
                             <div className="space-y-1.5">
                                 {brokers.map(acc => (
                                     <NavLink key={acc.id} to={`/account/${acc.id}`} className={linkClasses} onClick={onNavigate}>
@@ -251,7 +252,7 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-black text-slate-900 dark:text-white">添加新账户</h2>
                                 <button onClick={closeModal} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                    <span className="material-symbols-outlined text-slate-500">close</span>
+                                    <X size={18} className="text-slate-500" />
                                 </button>
                             </div>
 
@@ -260,16 +261,16 @@ export function Sidebar({ variant = 'desktop', onNavigate, onClose }: SidebarPro
                                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">账户类型</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { value: 'bank', label: '银行卡', icon: 'credit_card' },
-                                        { value: 'wallet', label: '电子钱包', icon: 'account_balance_wallet' },
-                                        { value: 'broker', label: '券商', icon: 'monitoring' },
+                                        { value: 'bank', label: '银行卡', icon: CreditCard },
+                                        { value: 'wallet', label: '电子钱包', icon: WalletCards },
+                                        { value: 'broker', label: '券商', icon: Building2 },
                                     ].map(opt => (
                                         <button
                                             key={opt.value}
                                             onClick={() => setForm(f => ({ ...f, type: opt.value as AccountType }))}
                                             className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${form.type === opt.value ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'}`}
                                         >
-                                            <span className="material-symbols-outlined text-xl">{opt.icon}</span>
+                                            <opt.icon size={18} />
                                             <span className="text-xs font-bold">{opt.label}</span>
                                         </button>
                                     ))}

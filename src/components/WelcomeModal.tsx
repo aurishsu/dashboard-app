@@ -51,8 +51,8 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
                 body: '先选机构，再接上传区。',
             },
             {
-                title: '试用先开放',
-                body: '先给 7 天和 3 张图片。',
+                title: '先把桌面搭好',
+                body: '先把默认模块和打开顺序准备好。',
             },
         ],
         startLabel: '开始方式',
@@ -61,7 +61,7 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
         budget: '先看零值预览',
         restore: '恢复之前的数据',
         notesLabel: '上传前先记住',
-        notes: ['不要上传 CVV', '不要上传密码和验证码', '试用先给 3 张图片'],
+        notes: ['不要上传 CVV', '不要上传密码和验证码', '先从最常用的几张截图开始'],
         previewBadge: '设置预览',
         previewTitle: '新的入口会先带你走完设置，再打开零值桌面',
         previewBody: '首页不再直接把人扔进总览，而是先走 setup，确认机构、上传队列和零值 dashboard 的样子。',
@@ -87,16 +87,16 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
         ],
         stats: [
             {
-                label: '试用图片',
-                note: '先开放 3 张',
+                label: '起手方式',
+                note: '设置完成后直接打开桌面',
             },
             {
-                label: '试用天数',
-                note: '先给 7 天体验',
+                label: '上传建议',
+                note: '先从最常用的几张截图开始',
             },
             {
-                label: '主流程',
-                note: '设置 -> 上传 -> 零值桌面',
+                label: '草稿保存',
+                note: '先保存在当前浏览器',
             },
         ],
         close: '关闭',
@@ -115,8 +115,8 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
                 body: 'Pick institutions before the upload step.',
             },
             {
-                title: 'Trial stays open first',
-                body: 'Start with 7 days and 3 images.',
+                title: 'Build the surface first',
+                body: 'Get the intake rhythm and workspace structure in place first.',
             },
         ],
         startLabel: 'How to begin',
@@ -125,7 +125,7 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
         budget: 'See the zero-state preview first',
         restore: 'Restore previous data',
         notesLabel: 'Before uploading',
-        notes: ['Do not upload CVV', 'Do not upload passwords or OTP codes', 'Trial starts with 3 images'],
+        notes: ['Do not upload CVV', 'Do not upload passwords or OTP codes', 'Start with the screenshots you use most often'],
         previewBadge: 'Setup preview',
         previewTitle: 'The new entry now runs through setup before opening the dashboard',
         previewBody: 'The homepage no longer throws people directly into the overview. The new path prepares the setup flow, queue, and zero-state dashboard first.',
@@ -139,7 +139,7 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
             {
                 title: 'Sources and queue',
                 note: 'Choose institutions and queue screenshots',
-                progress: 'Queue next',
+                progress: 'Queue',
                 widthClass: 'w-[58%]',
             },
             {
@@ -151,16 +151,16 @@ const COPY: Record<SiteLanguage, WelcomeCopy> = {
         ],
         stats: [
             {
-                label: 'Trial images',
-                note: 'First 3 queued',
-            },
-            {
-                label: 'Trial days',
-                note: '7 days first',
-            },
-            {
                 label: 'Main path',
-                note: 'Setup -> Queue -> Zero-state',
+                note: 'Setup finished, then open workspace',
+            },
+            {
+                label: 'Upload tip',
+                note: 'Start with the most useful screenshots first',
+            },
+            {
+                label: 'Draft save',
+                note: 'Kept in this browser first',
             },
         ],
         close: 'Close',

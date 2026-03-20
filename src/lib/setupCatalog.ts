@@ -6,7 +6,6 @@ export type LocalizedText = {
 export type SetupStepId = 'profile' | 'assets' | 'sources' | 'import' | 'preview';
 export type SetupProfileId = 'student' | 'working' | 'founder' | 'family' | 'global';
 export type SetupAssetId = 'bank' | 'wallet' | 'broker' | 'property' | 'vehicle';
-export type SetupSpreadId = 'few' | 'some' | 'many';
 export type SetupInstitutionGroup = 'bank' | 'wallet' | 'broker';
 export type SetupInstitutionId =
     | 'cba'
@@ -45,12 +44,6 @@ export type SetupAssetOption = {
     gate: 'core' | 'plus';
 };
 
-export type SetupSpreadOption = {
-    id: SetupSpreadId;
-    title: LocalizedText;
-    note: LocalizedText;
-};
-
 export type SetupInstitution = {
     id: SetupInstitutionId;
     group: SetupInstitutionGroup;
@@ -80,7 +73,7 @@ export const SETUP_STEPS: SetupStepMeta[] = [
     {
         id: 'import',
         label: { zh: '导入', en: 'IMPORT' },
-        short: { zh: '准备截图', en: 'Queue files' },
+        short: { zh: '准备截图', en: 'Prepare files' },
     },
     {
         id: 'preview',
@@ -92,21 +85,21 @@ export const SETUP_STEPS: SetupStepMeta[] = [
 export const PROFILE_OPTIONS: SetupProfileOption[] = [
     {
         id: 'student',
-        title: { zh: '学生 / 留学生活', en: 'Student' },
-        note: { zh: '账户不算少，但最怕信息分散。', en: 'Balances are scattered and should feel simpler.' },
-        helper: { zh: '适合多币种、银行卡和钱包混用。', en: 'Good for mixed currencies, cards, and wallets.' },
+        title: { zh: '留学生', en: 'Student' },
+        note: { zh: '多币种、银行卡和钱包常常一起用。', en: 'Often juggling currencies, cards, and wallets.' },
+        helper: { zh: '先把生活钱和主账户放到一起。', en: 'Bring daily money and core balances together first.' },
     },
     {
         id: 'working',
-        title: { zh: '上班族 / 专业人士', en: 'Working professional' },
-        note: { zh: '工资、储蓄和投资需要放回同一张桌面。', en: 'Salary, savings, and investing should share one surface.' },
-        helper: { zh: '更看重每月稳不稳。', en: 'Usually cares most about monthly stability.' },
+        title: { zh: '工作', en: 'Working' },
+        note: { zh: '工资、储蓄和投资最好放在同一张桌面。', en: 'Salary, savings, and investing should live on one surface.' },
+        helper: { zh: '先看这个月稳不稳，再看投资。', en: 'Check monthly stability before anything else.' },
     },
     {
         id: 'founder',
-        title: { zh: '自由职业 / 创业者', en: 'Founder / freelance' },
-        note: { zh: '入口多，切换快，不能每次都手动整理。', en: 'More moving pieces, faster context switches.' },
-        helper: { zh: '适合先抓大账户和安全线。', en: 'Best to spotlight large balances and runway first.' },
+        title: { zh: '自由职业', en: 'Freelance' },
+        note: { zh: '入口更多，也更需要快速切换。', en: 'More entry points and more switching.' },
+        helper: { zh: '先抓大账户和现金安全线。', en: 'Lead with large balances and runway.' },
     },
     {
         id: 'family',
@@ -132,44 +125,26 @@ export const ASSET_OPTIONS: SetupAssetOption[] = [
     {
         id: 'wallet',
         title: { zh: '微信 / 支付宝 / 钱包', en: 'Wallets' },
-        note: { zh: '微信零钱、支付宝余额、电子钱包。', en: 'WeChat, Alipay, and stored-value wallets.' },
+        note: { zh: '微信零钱、支付宝和电子钱包。', en: 'WeChat, Alipay, and stored-value wallets.' },
         gate: 'core',
     },
     {
         id: 'broker',
         title: { zh: '券商 / 投资账户', en: 'Broker accounts' },
-        note: { zh: 'IBKR、Moomoo 这类投资入口。', en: 'IBKR, Moomoo, and other broker balances.' },
+        note: { zh: 'IBKR、Moomoo 这类投资入口。', en: 'IBKR, Moomoo, and other broker entries.' },
         gate: 'core',
     },
     {
         id: 'property',
         title: { zh: '房产', en: 'Property' },
-        note: { zh: '作为扩展资产模板，可在 Plus 打开。', en: 'Comes in as an expanded template inside Plus.' },
+        note: { zh: '先留好位置，需要时后面再接入。', en: 'Reserve the slot first and bring it in later.' },
         gate: 'plus',
     },
     {
         id: 'vehicle',
         title: { zh: '车产', en: 'Vehicle' },
-        note: { zh: '和房产一样，先保留为 Plus 扩展位。', en: 'Also kept as a Plus expansion slot.' },
+        note: { zh: '和房产一样，先留位置，后面再接。', en: 'Like property, reserve the slot now and add it later.' },
         gate: 'plus',
-    },
-];
-
-export const SPREAD_OPTIONS: SetupSpreadOption[] = [
-    {
-        id: 'few',
-        title: { zh: '1 到 3 个入口', en: '1 to 3 places' },
-        note: { zh: '比较集中，适合先快速起步。', en: 'Fairly compact, good for a fast start.' },
-    },
-    {
-        id: 'some',
-        title: { zh: '4 到 6 个入口', en: '4 to 6 places' },
-        note: { zh: '已经开始分散，需要更强的归拢。', en: 'Already fragmented enough to need structure.' },
-    },
-    {
-        id: 'many',
-        title: { zh: '7 个以上', en: '7+ places' },
-        note: { zh: '更适合先做一次集中导入。', en: 'Better handled with a concentrated intake pass.' },
     },
 ];
 

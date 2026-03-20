@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreditCard, PencilLine, Plus, Trash2, WalletCards } from 'lucide-react';
+import { CreditCard, PencilLine, Plus, Trash2, WalletCards, Wifi } from 'lucide-react';
 import { useData } from '../context/useData';
 import { BANK_CARD_THEMES, CURRENCY_SYMBOLS, normalizeCardTheme, type Currency } from '../types/data';
 
@@ -425,7 +425,7 @@ function CardPreview({
                             </span>
                         )}
                     </div>
-                    <span className="material-symbols-outlined text-[30px] opacity-70">contactless</span>
+                    <Wifi size={30} className="rotate-90 opacity-70" />
                 </div>
 
                 <div>

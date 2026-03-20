@@ -32,14 +32,12 @@ import {
     SETUP_INSTITUTIONS,
     SETUP_SAFETY_RULES,
     SETUP_STEPS,
-    SPREAD_OPTIONS,
     type LocalizedText,
     type SetupAssetId,
     type SetupInstitution,
     type SetupInstitutionGroup,
     type SetupInstitutionId,
     type SetupProfileId,
-    type SetupSpreadId,
     type SetupStepId,
 } from '../lib/setupCatalog';
 import { createDemoWorkspace } from '../lib/demoWorkspace';
@@ -54,7 +52,6 @@ type SetupDraft = {
     currentStep: SetupStepId;
     profileId: SetupProfileId | null;
     assetIds: SetupAssetId[];
-    moneySpread: SetupSpreadId | null;
     institutions: SetupInstitutionId[];
     uploadNames: string[];
     skippedImport: boolean;
@@ -94,7 +91,6 @@ type FlowCopy = {
         eyebrow: string;
         title: string;
         body: string;
-        spreadLabel: string;
         institutionsLabel: string;
         banks: string;
         wallets: string;
@@ -140,25 +136,24 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             finish: '打开桌面',
         },
         profile: {
-            eyebrow: 'Part 1',
-            title: '先选一个更接近你的使用方式',
-            body: '这里只决定起手顺序和默认视角，不会限制你后面继续加什么。',
+            eyebrow: '起手方式',
+            title: '你更像哪一种',
+            body: '这里只决定打开后的默认顺序，后面还能继续加资产。',
             visualLabel: '起手桌面',
-            visualBody: '左边选的画像，会决定打开后先把哪几块放到前面。',
+            visualBody: '右边只保留一张预览，直接看打开后什么会先到前面。',
         },
         assets: {
-            eyebrow: 'Part 2',
-            title: '这一次，先把哪些资产带进来',
-            body: '先把最核心的入口圈出来，扩展资产用更清楚的 Plus 标记保留。',
+            eyebrow: '资产类型',
+            title: '这次先带哪些资产',
+            body: '先把最常用的入口摆出来，扩展资产后面再接。',
             core: '基础',
             plus: 'Plus',
             visualLabel: '桌面结构',
         },
         sources: {
-            eyebrow: 'Part 3',
-            title: '你平时把钱分散在哪些地方',
-            body: '先估一下入口数量，再把最常用的机构点出来，后面导入会顺很多。',
-            spreadLabel: '大概有多少个放钱入口',
+            eyebrow: '常用来源',
+            title: '先圈出常用机构',
+            body: '后面导入截图时，会先按这里的机构去贴近匹配。',
             institutionsLabel: '先标记最常用的机构',
             banks: '银行',
             wallets: '钱包',
@@ -166,11 +161,11 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             visualLabel: '来源映射',
         },
         import: {
-            eyebrow: 'Part 4',
-            title: '把截图先放进准备区',
-            body: '先把入口做顺。现在支持最多 3 张图片，后面再继续接识别。',
+            eyebrow: '导入准备',
+            title: '先把截图放进来',
+            body: '先把资料放好，后面识别就会从这里开始。当前最多 3 张图片。',
             uploadLabel: '拖入图片，或手动选择',
-            uploadBody: '建议只保留余额、账户尾号和机构名。',
+            uploadBody: '请只保留余额、尾号和机构名，其他敏感信息尽量遮住。',
             queuedLabel: '准备中的图片',
             empty: '还没有加入图片',
             rules: '上传前请先确认这些安全规则',
@@ -178,12 +173,12 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             visualLabel: '导入队列',
         },
         preview: {
-            eyebrow: 'Part 5',
-            title: '确认完这一步，就直接打开桌面',
-            body: '我们先把结构、颜色和模块站位做对，再把真实识别接进来。',
-            openHint: '这次会先带你进入一份带示例数据的桌面，方便你直接看效果。',
+            eyebrow: '确认桌面',
+            title: '确认后直接打开桌面',
+            body: '先把结构看顺，再继续把真实识别接进来。',
+            openHint: '这次会先打开一份演示桌面，方便你直接看效果。',
             visualLabel: '打开后的样子',
-            plusNote: '房产和车产会先作为 Plus 扩展位保留。',
+            plusNote: '房产和车产会留到后一步再接进去。',
         },
     },
     en: {
@@ -202,25 +197,24 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             finish: 'Open workspace',
         },
         profile: {
-            eyebrow: 'Part 1',
-            title: 'Pick the setup path that feels closest to you',
-            body: 'This only sets the starting angle and pacing. You can still add more later.',
+            eyebrow: 'SETUP STYLE',
+            title: 'Which setup feels closest to you',
+            body: 'This only sets the opening order. You can keep adding assets later.',
             visualLabel: 'Starting surface',
-            visualBody: 'Your choice decides which modules surface first when the workspace opens.',
+            visualBody: 'A single preview shows what comes forward first.',
         },
         assets: {
-            eyebrow: 'Part 2',
-            title: 'Choose the asset types to bring in first',
-            body: 'Lock in the core entry points first, then keep extended assets clearly marked with Plus.',
+            eyebrow: 'ASSET TYPES',
+            title: 'Choose what comes in first',
+            body: 'Bring the core entry points in first. Property and vehicle can wait.',
             core: 'Core',
             plus: 'Plus',
             visualLabel: 'Surface structure',
         },
         sources: {
-            eyebrow: 'Part 3',
-            title: 'Where is your money spread today',
-            body: 'Estimate the number of money entry points, then mark the institutions you use most.',
-            spreadLabel: 'How many places hold money for you',
+            eyebrow: 'COMMON SOURCES',
+            title: 'Mark the institutions you use most',
+            body: 'When screenshots arrive later, matching starts from these institutions first.',
             institutionsLabel: 'Most common institutions',
             banks: 'Banks',
             wallets: 'Wallets',
@@ -228,11 +222,11 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             visualLabel: 'Source map',
         },
         import: {
-            eyebrow: 'Part 4',
-            title: 'Queue the screenshots first',
-            body: 'Keep the intake silky. Right now you can stage up to three images before analysis lands.',
+            eyebrow: 'IMPORT PREP',
+            title: 'Bring the screenshots in first',
+            body: 'Place the files here first. Recognition starts from this queue, with up to three images for now.',
             uploadLabel: 'Drop images here or choose them manually',
-            uploadBody: 'Try to keep only balances, last digits, and institution names.',
+            uploadBody: 'Keep balances, last digits, and institution names. Mask everything else when possible.',
             queuedLabel: 'Queued images',
             empty: 'No image has been added yet',
             rules: 'Please confirm the safety rules before upload',
@@ -240,15 +234,20 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             visualLabel: 'Import queue',
         },
         preview: {
-            eyebrow: 'Part 5',
+            eyebrow: 'WORKSPACE CHECK',
             title: 'Confirm this setup, then open the workspace',
-            body: 'We are locking the structure and visual hierarchy first, then wiring real recognition into it.',
+            body: 'Check the structure first, then keep building from there.',
             openHint: 'This pass opens a seeded workspace so you can judge the visual result immediately.',
             visualLabel: 'What opens next',
-            plusNote: 'Property and vehicle stay as Plus expansion slots for now.',
+            plusNote: 'Property and vehicle stay for a later pass.',
         },
     },
 };
+
+const ACTIVE_PROFILE_IDS = ['student', 'working', 'founder'] as const;
+const ACTIVE_PROFILE_OPTIONS = PROFILE_OPTIONS.filter(option =>
+    ACTIVE_PROFILE_IDS.includes(option.id as (typeof ACTIVE_PROFILE_IDS)[number]),
+);
 
 const PROFILE_ICONS = {
     student: GraduationCap,
@@ -284,7 +283,6 @@ function createDefaultDraft(): SetupDraft {
         currentStep: 'profile',
         profileId: null,
         assetIds: ['bank', 'wallet', 'broker'],
-        moneySpread: 'some',
         institutions: ['cba', 'boc', 'hsbc', 'alipay', 'wechat', 'ibkr', 'moomoo'],
         uploadNames: [],
         skippedImport: false,
@@ -304,11 +302,10 @@ function loadDraft(): SetupDraft {
 
         return {
             currentStep: SETUP_STEPS.some(step => step.id === parsed.currentStep) ? parsed.currentStep! : fallback.currentStep,
-            profileId: PROFILE_OPTIONS.some(option => option.id === parsed.profileId) ? parsed.profileId! : fallback.profileId,
+            profileId: ACTIVE_PROFILE_OPTIONS.some(option => option.id === parsed.profileId) ? parsed.profileId! : fallback.profileId,
             assetIds: Array.isArray(parsed.assetIds)
                 ? parsed.assetIds.filter((id): id is SetupAssetId => ASSET_OPTIONS.some(option => option.id === id))
                 : fallback.assetIds,
-            moneySpread: SPREAD_OPTIONS.some(option => option.id === parsed.moneySpread) ? parsed.moneySpread! : fallback.moneySpread,
             institutions: Array.isArray(parsed.institutions)
                 ? parsed.institutions.filter((id): id is SetupInstitutionId => SETUP_INSTITUTIONS.some(option => option.id === id))
                 : fallback.institutions,
@@ -327,7 +324,7 @@ function isStepReady(stepId: SetupStepId, draft: SetupDraft) {
         case 'assets':
             return draft.assetIds.length > 0;
         case 'sources':
-            return Boolean(draft.moneySpread) && draft.institutions.length > 0;
+            return draft.institutions.length > 0;
         case 'import':
             return draft.uploadNames.length > 0 || draft.skippedImport;
         case 'preview':
@@ -379,7 +376,7 @@ export function SetupFlow() {
     const copy = COPY[language];
     const currentStepIndex = SETUP_STEPS.findIndex(step => step.id === draft.currentStep);
     const highestUnlockedIndex = getHighestUnlockedIndex(draft);
-    const selectedProfile = PROFILE_OPTIONS.find(option => option.id === draft.profileId) ?? PROFILE_OPTIONS[1];
+    const selectedProfile = ACTIVE_PROFILE_OPTIONS.find(option => option.id === draft.profileId) ?? ACTIVE_PROFILE_OPTIONS[1];
     const visibleInstitutions = useMemo(() => getVisibleInstitutions(draft.assetIds), [draft.assetIds]);
     const selectedInstitutions = useMemo(
         () => SETUP_INSTITUTIONS.filter(option => draft.institutions.includes(option.id)),
@@ -498,8 +495,8 @@ export function SetupFlow() {
                 return (
                     <>
                         <StepHeader eyebrow={copy.profile.eyebrow} title={copy.profile.title} body={copy.profile.body} />
-                        <div className="grid gap-3 md:grid-cols-2">
-                            {PROFILE_OPTIONS.map(option => {
+                        <div className="grid gap-3">
+                            {ACTIVE_PROFILE_OPTIONS.map(option => {
                                 const Icon = PROFILE_ICONS[option.id];
                                 const active = draft.profileId === option.id;
 
@@ -509,7 +506,7 @@ export function SetupFlow() {
                                         type="button"
                                         onClick={() => setDraft(current => ({ ...current, profileId: option.id }))}
                                         className={clsx(
-                                            'setup-chip-lift rounded-[28px] border p-4 text-left',
+                                            'setup-chip-lift rounded-[24px] border p-3.5 text-left',
                                             active
                                                 ? 'border-slate-900 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] dark:border-white dark:bg-white dark:text-slate-950'
                                                 : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-[#141b26] dark:hover:border-white/20',
@@ -521,8 +518,8 @@ export function SetupFlow() {
                                             </div>
                                             {active && <Check size={18} className="mt-1 shrink-0" />}
                                         </div>
-                                        <p className="mt-4 text-lg font-black tracking-[-0.04em]">{localize(option.title, language)}</p>
-                                        <p className={clsx('mt-2 text-sm leading-6', active ? 'text-white/72 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
+                                        <p className="mt-3 text-[15px] font-extrabold tracking-[0.01em]">{localize(option.title, language)}</p>
+                                        <p className={clsx('mt-1.5 text-[13px] leading-5', active ? 'text-white/72 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
                                             {localize(option.note, language)}
                                         </p>
                                     </button>
@@ -547,7 +544,7 @@ export function SetupFlow() {
                                         type="button"
                                         onClick={() => toggleAsset(option.id)}
                                         className={clsx(
-                                            'setup-chip-lift rounded-[28px] border p-4 text-left',
+                                            'setup-chip-lift rounded-[24px] border p-3.5 text-left',
                                             active
                                                 ? 'border-slate-900 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] dark:border-white dark:bg-white dark:text-slate-950'
                                                 : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-[#141b26] dark:hover:border-white/20',
@@ -570,8 +567,8 @@ export function SetupFlow() {
                                                 {plus ? copy.assets.plus : copy.assets.core}
                                             </span>
                                         </div>
-                                        <p className="mt-4 text-lg font-black tracking-[-0.04em]">{localize(option.title, language)}</p>
-                                        <p className={clsx('mt-2 text-sm leading-6', active ? 'text-white/72 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
+                                        <p className="mt-3 text-[15px] font-extrabold tracking-[0.01em]">{localize(option.title, language)}</p>
+                                        <p className={clsx('mt-1.5 text-[13px] leading-5', active ? 'text-white/72 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
                                             {localize(option.note, language)}
                                         </p>
                                     </button>
@@ -584,68 +581,37 @@ export function SetupFlow() {
                 return (
                     <>
                         <StepHeader eyebrow={copy.sources.eyebrow} title={copy.sources.title} body={copy.sources.body} />
-                        <div className="space-y-5">
-                            <div>
-                                <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                                    {copy.sources.spreadLabel}
-                                </p>
-                                <div className="grid gap-3 md:grid-cols-3">
-                                    {SPREAD_OPTIONS.map(option => {
-                                        const active = draft.moneySpread === option.id;
-                                        return (
-                                            <button
-                                                key={option.id}
-                                                type="button"
-                                                onClick={() => setDraft(current => ({ ...current, moneySpread: option.id }))}
-                                                className={clsx(
-                                                    'setup-chip-lift rounded-[24px] border p-4 text-left',
-                                                    active
-                                                        ? 'border-slate-900 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950'
-                                                        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-[#141b26] dark:hover:border-white/20',
-                                                )}
-                                            >
-                                                <p className="text-base font-black tracking-[-0.03em]">{localize(option.title, language)}</p>
-                                                <p className={clsx('mt-2 text-sm leading-6', active ? 'text-white/70 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
-                                                    {localize(option.note, language)}
-                                                </p>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            <div>
-                                <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                                    {copy.sources.institutionsLabel}
-                                </p>
-                                <div className="space-y-4">
-                                    {(['bank', 'wallet', 'broker'] as SetupInstitutionGroup[]).map(group => (
-                                        <div key={group} className="space-y-2">
-                                            <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 dark:text-slate-400">{groupLabels[group]}</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {groupedVisibleInstitutions[group].map(option => {
-                                                    const active = draft.institutions.includes(option.id);
-                                                    return (
-                                                        <button
-                                                            key={option.id}
-                                                            type="button"
-                                                            onClick={() => toggleInstitution(option.id)}
-                                                            className="setup-chip-lift inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-semibold"
-                                                            style={{
-                                                                borderColor: active ? option.accent : undefined,
-                                                                backgroundColor: active ? `${option.accent}14` : undefined,
-                                                                color: active ? option.accent : undefined,
-                                                            }}
-                                                        >
-                                                            <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
-                                                            {localize(option.title, language)}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
+                        <div className="space-y-3">
+                            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                                {copy.sources.institutionsLabel}
+                            </p>
+                            <div className="space-y-3">
+                                {(['bank', 'wallet', 'broker'] as SetupInstitutionGroup[]).map(group => (
+                                    <div key={group} className="space-y-2">
+                                        <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 dark:text-slate-400">{groupLabels[group]}</p>
+                                        <div className="flex flex-wrap gap-1">
+                                            {groupedVisibleInstitutions[group].map(option => {
+                                                const active = draft.institutions.includes(option.id);
+                                                return (
+                                                    <button
+                                                        key={option.id}
+                                                        type="button"
+                                                        onClick={() => toggleInstitution(option.id)}
+                                                        className="setup-chip-lift inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-[0.01em]"
+                                                        style={{
+                                                            borderColor: active ? option.accent : undefined,
+                                                            backgroundColor: active ? `${option.accent}14` : undefined,
+                                                            color: active ? option.accent : undefined,
+                                                        }}
+                                                    >
+                                                        <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
+                                                        {localize(option.title, language)}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
-                                    ))}
-                                </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </>
@@ -654,10 +620,10 @@ export function SetupFlow() {
                 return (
                     <>
                         <StepHeader eyebrow={copy.import.eyebrow} title={copy.import.title} body={copy.import.body} />
-                        <div className="space-y-4">
+                        <div className="space-y-3.5">
                             <div
                                 className={clsx(
-                                    'rounded-[30px] border border-dashed bg-white p-5 transition dark:bg-[#141b26]',
+                                    'rounded-[28px] border border-dashed bg-white p-4 transition dark:bg-[#141b26]',
                                     dragActive ? 'border-slate-900 shadow-[0_18px_45px_rgba(15,23,42,0.12)] dark:border-white' : 'border-slate-300 dark:border-white/15',
                                 )}
                                 onDragOver={event => {
@@ -676,9 +642,9 @@ export function SetupFlow() {
                                         <Upload size={18} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-lg font-black tracking-[-0.04em]">{copy.import.uploadLabel}</p>
-                                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{copy.import.uploadBody}</p>
-                                        <div className="mt-4 flex flex-wrap gap-2">
+                                        <p className="text-[15px] font-extrabold tracking-[0.01em]">{copy.import.uploadLabel}</p>
+                                        <p className="mt-1.5 text-[13px] leading-5 text-slate-500 dark:text-slate-400">{copy.import.uploadBody}</p>
+                                        <div className="mt-3 flex flex-wrap gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => fileInputRef.current?.click()}
@@ -703,14 +669,14 @@ export function SetupFlow() {
                                 />
                             </div>
 
-                            <div className="rounded-[30px] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#141b26]">
+                            <div className="rounded-[28px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#141b26]">
                                 <div className="flex items-center justify-between gap-4">
                                     <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{copy.import.queuedLabel}</p>
                                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500 dark:bg-white/6 dark:text-slate-300">
                                         {draft.uploadNames.length}/{FREE_UPLOAD_LIMIT}
                                     </span>
                                 </div>
-                                <div className="mt-4 flex min-h-16 flex-wrap gap-2">
+                                <div className="mt-3 flex min-h-14 flex-wrap gap-2">
                                     {draft.uploadNames.length > 0 ? draft.uploadNames.map(name => (
                                         <button
                                             key={name}
@@ -727,14 +693,14 @@ export function SetupFlow() {
                                 </div>
                             </div>
 
-                            <div className="rounded-[30px] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#141b26]">
+                            <div className="rounded-[28px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#141b26]">
                                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{copy.import.rules}</p>
-                                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                <div className="mt-3 grid gap-2.5">
                                     {SETUP_SAFETY_RULES.map(rule => (
-                                        <div key={rule.zh} className="rounded-[22px] bg-slate-50 px-4 py-4 dark:bg-[#101520]">
+                                        <div key={rule.zh} className="rounded-[20px] bg-slate-50 px-4 py-3 dark:bg-[#101520]">
                                             <div className="flex items-start gap-3">
                                                 <ShieldCheck size={16} className="mt-0.5 shrink-0 text-slate-400" />
-                                                <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{localize(rule, language)}</p>
+                                                <p className="text-[13px] leading-5 text-slate-600 dark:text-slate-300">{localize(rule, language)}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -766,10 +732,10 @@ export function SetupFlow() {
                                 />
                             </div>
 
-                            <div className="rounded-[30px] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#141b26]">
-                                <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{copy.preview.openHint}</p>
+                            <div className="rounded-[30px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#141b26]">
+                                <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{copy.preview.openHint}</p>
                                 {hasPlusAssets && (
-                                    <div className="mt-4 inline-flex rounded-full bg-[#2c2015] px-4 py-2 text-sm font-semibold text-[#f0c58f] ring-1 ring-[#5b4532] dark:bg-[#372611] dark:text-[#f3d4a4] dark:ring-[#6c5235]">
+                                    <div className="mt-3 inline-flex rounded-full bg-[#2c2015] px-4 py-2 text-sm font-semibold text-[#f0c58f] ring-1 ring-[#5b4532] dark:bg-[#372611] dark:text-[#f3d4a4] dark:ring-[#6c5235]">
                                         {copy.preview.plusNote}
                                     </div>
                                 )}
@@ -781,10 +747,10 @@ export function SetupFlow() {
     };
 
     return (
-        <div className="min-h-screen bg-[linear-gradient(180deg,#efe6d9_0%,#f7f2ea_100%)] p-3 text-slate-950 dark:bg-[linear-gradient(180deg,#0f1319_0%,#141922_100%)] dark:text-white">
-            <div className="mx-auto flex min-h-[calc(100svh-1.5rem)] max-w-[1720px] flex-col overflow-hidden rounded-[34px] border border-black/6 bg-[#f7f2ea] shadow-[0_38px_120px_rgba(15,23,42,0.14)] dark:border-white/10 dark:bg-[#0f141d]">
+        <div className="h-[100dvh] overflow-hidden bg-[linear-gradient(180deg,#efe6d9_0%,#f7f2ea_100%)] p-3 text-slate-950 dark:bg-[linear-gradient(180deg,#0f1319_0%,#141922_100%)] dark:text-white">
+            <div className="mx-auto flex h-[calc(100dvh-1.5rem)] max-w-[1720px] flex-col overflow-hidden rounded-[34px] border border-black/6 bg-[#f7f2ea] shadow-[0_38px_120px_rgba(15,23,42,0.14)] dark:border-white/10 dark:bg-[#0f141d]">
                 <header className="border-b border-black/6 bg-white/92 backdrop-blur-sm dark:border-white/10 dark:bg-[#101722]/92">
-                    <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <span className="size-3 rounded-full bg-[#ff5f57]" />
@@ -875,8 +841,8 @@ export function SetupFlow() {
                     </div>
                 </header>
 
-                <div className="grid flex-1 lg:grid-cols-[minmax(0,500px)_minmax(0,1fr)]">
-                    <section className="flex min-h-0 flex-col border-r border-black/6 bg-[#fbf8f3] px-6 py-6 dark:border-white/10 dark:bg-[#0f141d] lg:px-9 lg:py-8">
+                <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,0.43fr)_minmax(0,0.57fr)]">
+                    <section className="flex min-h-0 flex-col overflow-hidden border-r border-black/6 bg-[#fbf8f3] px-6 py-3 tracking-[0.01em] dark:border-white/10 dark:bg-[#0f141d] lg:px-7 lg:py-3">
                         <div className="flex items-center justify-between gap-3">
                             <button
                                 type="button"
@@ -896,11 +862,11 @@ export function SetupFlow() {
                             </button>
                         </div>
 
-                        <div className="mt-7 flex-1 space-y-6">
+                        <div className="mt-3 min-h-0 flex-1 overflow-hidden">
                             {renderLeftStep()}
                         </div>
 
-                        <div className="mt-7 flex items-center justify-between gap-3 border-t border-slate-200/80 pt-5 dark:border-white/10">
+                        <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-200/80 pt-3 dark:border-white/10">
                             <button
                                 type="button"
                                 onClick={goBack}
@@ -937,7 +903,7 @@ export function SetupFlow() {
                         </div>
                     </section>
 
-                    <section className="relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(190,200,255,0.24),transparent_26%),linear-gradient(180deg,#f6efe1_0%,#f3ecde_100%)] px-6 py-6 dark:bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.12),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(117,130,217,0.16),transparent_22%),linear-gradient(180deg,#0e131b_0%,#121925_100%)] lg:px-10 lg:py-8">
+                    <section className="relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(190,200,255,0.24),transparent_26%),linear-gradient(180deg,#f6efe1_0%,#f3ecde_100%)] px-5 py-3 tracking-[0.01em] dark:bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.12),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(117,130,217,0.16),transparent_22%),linear-gradient(180deg,#0e131b_0%,#121925_100%)] lg:px-6 lg:py-3">
                         {draft.currentStep === 'profile' && <ProfileVisual profile={selectedProfile} language={language} copy={copy.profile} />}
                         {draft.currentStep === 'assets' && <AssetsVisual assetIds={draft.assetIds} language={language} copy={copy.assets} />}
                         {draft.currentStep === 'sources' && (
@@ -945,7 +911,6 @@ export function SetupFlow() {
                                 language={language}
                                 groupLabels={groupLabels}
                                 selectedInstitutions={selectedInstitutions}
-                                spreadId={draft.moneySpread}
                                 visualLabel={copy.sources.visualLabel}
                             />
                         )}
@@ -979,32 +944,63 @@ function StepHeader({ eyebrow, title, body }: { eyebrow: string; title: string; 
     return (
         <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">{eyebrow}</p>
-            <h1 className="mt-4 max-w-[11ch] text-[clamp(2.8rem,4.8vw,4.9rem)] font-black leading-[0.94] tracking-[-0.08em] text-slate-950 dark:text-white">
+            <h1 className="mt-4 max-w-[14ch] text-[clamp(1.28rem,1.6vw,1.92rem)] font-extrabold leading-[1.08] tracking-[0.012em] text-slate-950 dark:text-white">
                 {title}
             </h1>
-            <p className="mt-5 max-w-[44ch] text-base leading-8 text-slate-500 dark:text-slate-400">{body}</p>
+            <p className="mt-3 max-w-[44ch] text-[13.5px] leading-6 tracking-[0.012em] text-slate-500 dark:text-slate-400">{body}</p>
         </div>
     );
 }
 
 function SummaryTile({ label, value, note }: { label: string; value: string; note: string }) {
     return (
-        <div className="rounded-[26px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#141b26]">
+        <div className="rounded-[26px] border border-slate-200 bg-white p-3.5 dark:border-white/10 dark:bg-[#141b26]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{label}</p>
-            <p className="mt-3 text-lg font-black tracking-[-0.04em] text-slate-950 dark:text-white">{value}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{note}</p>
+            <p className="mt-2.5 text-lg font-black tracking-[0.002em] text-slate-950 dark:text-white">{value}</p>
+            <p className="mt-1.5 text-[13px] leading-5 text-slate-500 dark:text-slate-400">{note}</p>
+        </div>
+    );
+}
+
+function CompactVisualStat({
+    label,
+    value,
+    note,
+    inverse = false,
+}: {
+    label: string;
+    value: string;
+    note: string;
+    inverse?: boolean;
+}) {
+    return (
+        <div
+            className={clsx(
+                'rounded-[24px] px-4 py-4',
+                inverse
+                    ? 'border border-white/10 bg-white/6 text-white'
+                    : 'border border-slate-200 bg-white text-slate-950 dark:border-white/10 dark:bg-[#171d27] dark:text-white',
+            )}
+        >
+            <p className={clsx('text-[11px] font-semibold uppercase tracking-[0.16em]', inverse ? 'text-white/45' : 'text-slate-400 dark:text-slate-500')}>
+                {label}
+            </p>
+            <p className={clsx('mt-3 text-[1.75rem] font-black leading-none tracking-[-0.04em]', inverse ? 'text-white' : 'text-slate-950 dark:text-white')}>
+                {value}
+            </p>
+            <p className={clsx('mt-2 text-[13px] leading-5', inverse ? 'text-white/62' : 'text-slate-500 dark:text-slate-400')}>{note}</p>
         </div>
     );
 }
 
 function VisualShell({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="flex h-full flex-col rounded-[38px] border border-white/75 bg-white/72 p-6 shadow-[0_30px_90px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-white/10 dark:bg-[#121927]/84 dark:shadow-[0_36px_90px_rgba(2,6,23,0.34)] lg:p-8">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[38px] border border-white/75 bg-white/72 p-5 shadow-[0_30px_90px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-white/10 dark:bg-[#121927]/84 dark:shadow-[0_36px_90px_rgba(2,6,23,0.34)] lg:p-6">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold tracking-[0.14em] text-slate-500 dark:border-white/10 dark:bg-[#181f2d] dark:text-slate-300">
                 <Sparkles size={14} />
                 {label}
             </div>
-            <div className="mt-6 flex-1">{children}</div>
+            <div className="mt-4 flex-1 min-h-0">{children}</div>
         </div>
     );
 }
@@ -1018,62 +1014,101 @@ function ProfileVisual({
     language: SiteLanguage;
     copy: FlowCopy['profile'];
 }) {
-    const modules = [
-        language === 'zh' ? '总资产' : 'Net worth',
-        language === 'zh' ? '账户结构' : 'Structure',
-        language === 'zh' ? '预算提醒' : 'Budget',
-    ];
+    const modules = profile.id === 'student'
+        ? [
+            language === 'zh' ? '总资产' : 'Net worth',
+            language === 'zh' ? '币种分布' : 'Currency',
+            language === 'zh' ? '生活预算' : 'Budget',
+        ]
+        : profile.id === 'working'
+            ? [
+                language === 'zh' ? '总资产' : 'Net worth',
+                language === 'zh' ? '账户结构' : 'Structure',
+                language === 'zh' ? '月度提醒' : 'Monthly guide',
+            ]
+            : [
+                language === 'zh' ? '总资产' : 'Net worth',
+                language === 'zh' ? '账户集中度' : 'Concentration',
+                language === 'zh' ? '现金安全线' : 'Runway',
+            ];
+    const profileFocus = profile.id === 'student'
+        ? (language === 'zh' ? '先把多币种和日常支出放到同一张桌面。' : 'Bring mixed currencies and daily spending onto one surface first.')
+        : profile.id === 'working'
+            ? (language === 'zh' ? '先看工资、储蓄和投资是不是排得够顺。' : 'Lead with salary, savings, and investing on one calmer surface.')
+            : (language === 'zh' ? '先把大账户和高频入口抓出来，少来回切。' : 'Bring large balances and high-frequency entry points forward first.');
+    const orderedSteps = profile.id === 'student'
+        ? [
+            language === 'zh' ? '先看银行卡和主账户' : 'Start with bank balances',
+            language === 'zh' ? '再看钱包和生活预算' : 'Then bring in wallets',
+            language === 'zh' ? '最后接券商入口' : 'Finish with brokers',
+        ]
+        : profile.id === 'working'
+            ? [
+                language === 'zh' ? '先看工资和储蓄' : 'Start with salary and savings',
+                language === 'zh' ? '再看投资账户' : 'Then bring in brokers',
+                language === 'zh' ? '最后补钱包入口' : 'Finish with wallets',
+            ]
+            : [
+                language === 'zh' ? '先看大额账户' : 'Start with the largest accounts',
+                language === 'zh' ? '再看高频入口' : 'Then bring in high-frequency surfaces',
+                language === 'zh' ? '最后补预算提醒' : 'Finish with budget prompts',
+            ];
 
     return (
         <VisualShell label={copy.visualLabel}>
-            <div className="grid h-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#101828_100%)] p-6 text-white">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Harbor start</p>
-                    <div className="mt-5 flex items-center gap-4">
+            <div className="flex h-full min-h-0 flex-col">
+                <div className="grid h-full min-h-0 gap-4 rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#101828_100%)] p-5 text-white">
+                    <div className="flex items-start gap-4">
                         <div className="flex size-14 items-center justify-center rounded-[22px] bg-white/10">
                             {(() => {
                                 const Icon = PROFILE_ICONS[profile.id];
                                 return <Icon size={22} />;
                             })()}
                         </div>
-                        <div>
-                            <p className="text-3xl font-black tracking-[-0.06em]">{localize(profile.title, language)}</p>
-                            <p className="mt-2 max-w-md text-sm leading-6 text-white/65">{copy.visualBody}</p>
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                                {language === 'zh' ? '打开后的默认重心' : 'Opening focus'}
+                            </p>
+                            <p className="mt-3 text-[1.48rem] font-extrabold leading-[1.1] tracking-[0.01em]">
+                                {localize(profile.helper, language)}
+                            </p>
+                            <p className="mt-3 max-w-xl text-sm leading-6 tracking-[0.01em] text-white/65">{copy.visualBody}</p>
                         </div>
                     </div>
-                    <div className="mt-8 grid gap-3 md:grid-cols-3">
+
+                    <div className="grid gap-3 md:grid-cols-3">
                         {modules.map(label => (
                             <div key={label} className="rounded-[24px] border border-white/10 bg-white/6 p-4">
-                                <div className="h-2 w-16 rounded-full bg-white/70" />
-                                <div className="mt-5 h-2 w-24 rounded-full bg-white/25" />
+                                <div className="h-2 w-16 rounded-full bg-white/72" />
+                                <div className="mt-5 h-2 w-24 rounded-full bg-white/20" />
                                 <p className="mt-4 text-sm font-semibold text-white/82">{label}</p>
                             </div>
                         ))}
                     </div>
-                </div>
 
-                <div className="flex flex-col justify-between rounded-[34px] border border-slate-200 bg-[#faf6ef] p-6 dark:border-white/10 dark:bg-[#171d27]">
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 dark:text-slate-500">Focus first</p>
-                        <p className="mt-4 text-[2.2rem] font-black leading-[1] tracking-[-0.08em] text-slate-950 dark:text-white">
-                            {localize(profile.helper, language)}
-                        </p>
-                    </div>
-                    <div className="mt-6 space-y-3">
-                        {['bank', 'wallet', 'broker'].map(type => (
-                            <div key={type} className="rounded-[22px] border border-slate-200 bg-white px-4 py-4 dark:border-white/10 dark:bg-[#0f141d]">
-                                <div className="flex items-center gap-3">
-                                    <span className="size-2.5 rounded-full bg-slate-950 dark:bg-white" />
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                        {type === 'bank'
-                                            ? language === 'zh' ? '先看银行卡与主账户' : 'Lead with bank balances'
-                                            : type === 'wallet'
-                                                ? language === 'zh' ? '再把钱包与日常支出放进来' : 'Then add daily wallets'
-                                                : language === 'zh' ? '最后接投资入口' : 'Finish with broker balances'}
-                                    </p>
-                                </div>
+                    <div className="grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
+                        <div className="rounded-[26px] border border-white/10 bg-white/6 p-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                                {language === 'zh' ? '打开后的顺序' : 'Opening order'}
+                            </p>
+                            <div className="mt-4 space-y-3">
+                                {orderedSteps.map((step, index) => (
+                                    <div key={step} className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/10 px-4 py-3">
+                                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-white/82">
+                                            {index + 1}
+                                        </span>
+                                        <p className="text-sm font-semibold text-white/78">{step}</p>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </div>
+
+                        <CompactVisualStat
+                            label={language === 'zh' ? '这一步影响' : 'What changes'}
+                            value={language === 'zh' ? '更顺手' : 'More direct'}
+                            note={profileFocus}
+                            inverse
+                        />
                     </div>
                 </div>
             </div>
@@ -1091,47 +1126,67 @@ function AssetsVisual({
     copy: FlowCopy['assets'];
 }) {
     const activeAssets = ASSET_OPTIONS.filter(option => assetIds.includes(option.id));
+    const coreAssets = activeAssets.filter(option => option.gate === 'core');
+    const plusAssets = activeAssets.filter(option => option.gate === 'plus');
 
     return (
         <VisualShell label={copy.visualLabel}>
-            <div className="rounded-[36px] bg-[linear-gradient(180deg,#0f172a_0%,#0b1020_100%)] p-6 text-white">
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Module map</p>
-                        <p className="mt-4 max-w-[15ch] text-[3rem] font-black leading-[0.92] tracking-[-0.08em]">
-                            {language === 'zh' ? '桌面会先长出这些入口' : 'These modules open first'}
-                        </p>
+            <div className="grid h-full min-h-0 gap-4">
+                <div className="rounded-[36px] bg-[linear-gradient(180deg,#0f172a_0%,#0b1020_100%)] p-5 text-white">
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                                {language === 'zh' ? '桌面预览' : 'Surface preview'}
+                            </p>
+                            <p className="mt-4 max-w-[14ch] text-[2rem] font-black leading-[1.02] tracking-[0.01em]">
+                                {language === 'zh' ? '这次会先把这些区域摆上桌面' : 'These surfaces come onto the workspace first'}
+                            </p>
+                        </div>
+                        <div className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-white/72">
+                            {activeAssets.length} {language === 'zh' ? '项' : 'items'}
+                        </div>
                     </div>
-                    <div className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-white/72">
-                        {activeAssets.length} {language === 'zh' ? '块' : 'blocks'}
-                    </div>
-                </div>
 
-                <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {activeAssets.map(option => {
-                        const Icon = ASSET_ICONS[option.id];
-                        const plus = option.gate === 'plus';
-
-                        return (
-                            <div key={option.id} className="rounded-[28px] border border-white/10 bg-white/6 p-5">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex size-12 items-center justify-center rounded-[20px] bg-white/10">
-                                        <Icon size={18} />
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
+                        {coreAssets.map((option, index) => {
+                            const Icon = ASSET_ICONS[option.id];
+                            return (
+                                <div key={option.id} className="rounded-[28px] border border-white/10 bg-white/6 p-4">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="flex size-12 items-center justify-center rounded-[20px] bg-white/10">
+                                            <Icon size={18} />
+                                        </div>
+                                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/42">
+                                            0{index + 1}
+                                        </span>
                                     </div>
-                                    <span
-                                        className={clsx(
-                                            'rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.16em]',
-                                            plus ? 'bg-[#2c2015] text-[#f0c58f]' : 'bg-white/12 text-white/76',
-                                        )}
-                                    >
-                                        {plus ? copy.plus : copy.core}
-                                    </span>
+                                    <p className="mt-4 text-sm font-semibold tracking-[0.08em] text-white/84">
+                                        {language === 'zh' ? `入口模块 ${index + 1}` : `Entry module ${index + 1}`}
+                                    </p>
+                                    <div className="mt-4 space-y-2">
+                                        <div className="h-2 w-16 rounded-full bg-white/80" />
+                                        <div className="h-2 w-24 rounded-full bg-white/20" />
+                                        <div className="h-2 w-20 rounded-full bg-white/20" />
+                                    </div>
                                 </div>
-                                <p className="mt-4 text-lg font-black tracking-[-0.04em]">{localize(option.title, language)}</p>
-                                <p className="mt-2 text-sm leading-6 text-white/62">{localize(option.note, language)}</p>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                        <CompactVisualStat
+                            label={language === 'zh' ? '基础模块' : 'Core modules'}
+                            value={`${coreAssets.length}`}
+                            note={language === 'zh' ? '这次会直接打开' : 'Shown in this pass'}
+                            inverse
+                        />
+                        <CompactVisualStat
+                            label={language === 'zh' ? '后一步再接' : 'Later add-ons'}
+                            value={`${plusAssets.length}`}
+                            note={language === 'zh' ? '扩展资产先留位置' : 'Reserved for a later pass'}
+                            inverse
+                        />
+                    </div>
                 </div>
             </div>
         </VisualShell>
@@ -1142,13 +1197,11 @@ function SourcesVisual({
     language,
     groupLabels,
     selectedInstitutions,
-    spreadId,
     visualLabel,
 }: {
     language: SiteLanguage;
     groupLabels: Record<SetupInstitutionGroup, string>;
     selectedInstitutions: SetupInstitution[];
-    spreadId: SetupSpreadId | null;
     visualLabel: string;
 }) {
     const grouped = {
@@ -1156,53 +1209,77 @@ function SourcesVisual({
         wallet: selectedInstitutions.filter(option => option.group === 'wallet'),
         broker: selectedInstitutions.filter(option => option.group === 'broker'),
     };
-    const spreadLabel = SPREAD_OPTIONS.find(option => option.id === spreadId);
 
     return (
         <VisualShell label={visualLabel}>
-            <div className="grid h-full gap-6 lg:grid-cols-[0.92fr_1.08fr]">
-                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] p-6 text-white">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Selected sources</p>
-                    <p className="mt-4 text-[2.3rem] font-black leading-[0.96] tracking-[-0.08em]">
-                        {spreadLabel ? localize(spreadLabel.title, language) : (language === 'zh' ? '待选择' : 'Waiting')}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-white/62">
-                        {language === 'zh'
-                            ? '先把最常用的来源圈出来，导入时就不会再从零开始。'
-                            : 'Mark the most common sources first so the intake no longer starts from zero.'}
-                    </p>
+            <div className="grid h-full min-h-0 gap-4">
+                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] p-5 text-white">
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                                {language === 'zh' ? '已选来源' : 'Selected sources'}
+                            </p>
+                            <p className="mt-4 text-[1.92rem] font-black leading-[1.04] tracking-[0.01em]">
+                                {language === 'zh' ? '先把机构识别的起点定下来' : 'Set the starting point for institution matching'}
+                            </p>
+                            <p className="mt-3 max-w-2xl text-sm leading-6 tracking-[0.015em] text-white/62">
+                                {language === 'zh'
+                                    ? '你现在选的这些机构，会成为上传截图时最先匹配的来源。'
+                                    : 'These selections become the first institutions we try to match once screenshots arrive.'}
+                            </p>
+                        </div>
+                        <div className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-white/72">
+                            {selectedInstitutions.length} {language === 'zh' ? '个来源' : 'sources'}
+                        </div>
+                    </div>
 
-                    <div className="mt-8 space-y-3">
-                        {selectedInstitutions.slice(0, 6).map(option => (
-                            <div key={option.id} className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4">
-                                <div className="flex items-center gap-3">
-                                    <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-white">{localize(option.title, language)}</p>
-                                        <p className="truncate text-xs text-white/54">{localize(option.note, language)}</p>
+                    <div className="mt-5 grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
+                        <div className="grid gap-3 md:grid-cols-2">
+                            {selectedInstitutions.map(option => (
+                                <div key={option.id} className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-semibold text-white">{localize(option.title, language)}</p>
+                                            <p className="truncate text-xs text-white/48">{localize(option.note, language)}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                            ))}
+                        </div>
 
-                <div className="rounded-[34px] border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-[#171d27]">
-                    <div className="grid gap-3 md:grid-cols-3">
-                        {(['bank', 'wallet', 'broker'] as SetupInstitutionGroup[]).map(group => (
-                            <div key={group} className="rounded-[24px] bg-slate-50 p-4 dark:bg-[#0f141d]">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{groupLabels[group]}</p>
-                                <p className="mt-3 text-3xl font-black tracking-[-0.06em] text-slate-950 dark:text-white">{grouped[group].length}</p>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {grouped[group].map(option => (
-                                        <span key={option.id} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold dark:border-white/10">
-                                            <span className="size-2 rounded-full" style={{ backgroundColor: option.accent }} />
-                                            {localize(option.title, language)}
-                                        </span>
-                                    ))}
+                        <div className="grid gap-3">
+                            {(['bank', 'wallet', 'broker'] as SetupInstitutionGroup[]).map(group => (
+                                <div key={group} className="rounded-[24px] border border-white/10 bg-white/6 p-4">
+                                    <div className="flex items-end justify-between gap-4">
+                                        <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">{groupLabels[group]}</p>
+                                            <p className="mt-3 text-3xl font-black tracking-[-0.02em] text-white">{grouped[group].length}</p>
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 text-[13px] leading-5 text-white/60">
+                                        {grouped[group].length > 0
+                                            ? grouped[group]
+                                                .slice(0, 2)
+                                                .map(option => localize(option.title, language))
+                                                .join(' / ')
+                                            : language === 'zh'
+                                                ? '这类来源这次先不带进来。'
+                                                : 'This source type is skipped in this pass.'}
+                                    </p>
                                 </div>
+                            ))}
+                            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">
+                                    {language === 'zh' ? '导入时会怎么用' : 'How this helps later'}
+                                </p>
+                                <p className="mt-3 text-[13px] leading-5 text-white/62">
+                                    {language === 'zh'
+                                        ? '上传截图后，会先按这里的机构名和品牌色去贴近匹配。'
+                                        : 'When screenshots arrive, matching starts from the institution names and brand colours shown here.'}
+                                </p>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1221,27 +1298,27 @@ function ImportVisual({
     selectedInstitutions: SetupInstitution[];
     visualLabel: string;
 }) {
-    const visibleRows = selectedInstitutions.slice(0, 6);
-
     return (
         <VisualShell label={visualLabel}>
-            <div className="grid h-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] p-6 text-white">
+            <div className="grid h-full min-h-0 gap-4 xl:grid-cols-[0.96fr_1.04fr]">
+                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] p-5 text-white">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Queue</p>
-                            <p className="mt-4 text-[2.4rem] font-black leading-[0.96] tracking-[-0.08em]">
-                                {queued.length > 0 ? `${queued.length}/${FREE_UPLOAD_LIMIT}` : (language === 'zh' ? '0/3' : '0/3')}
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                                {language === 'zh' ? '导入队列' : 'Import queue'}
+                            </p>
+                            <p className="mt-4 text-[2.15rem] font-black leading-[1] tracking-[-0.035em]">
+                                {queued.length > 0 ? `${queued.length}/${FREE_UPLOAD_LIMIT}` : '0/3'}
                             </p>
                         </div>
                         <div className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white/70">
                             {language === 'zh' ? '准备中' : 'Queued'}
                         </div>
                     </div>
-                    <div className="mt-8 space-y-3">
+
+                    <div className="mt-4 space-y-3">
                         {(queued.length > 0 ? queued : [
                             language === 'zh' ? '银行卡截图.jpg' : 'bank-balance.jpg',
-                            language === 'zh' ? '券商持仓.png' : 'broker-balance.png',
                         ]).map(name => (
                             <div key={name} className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4">
                                 <div className="flex items-center gap-3">
@@ -1250,21 +1327,43 @@ function ImportVisual({
                                     </div>
                                     <div className="min-w-0">
                                         <p className="truncate text-sm font-semibold text-white">{name}</p>
-                                        <p className="text-xs text-white/54">{language === 'zh' ? '等待导入确认' : 'Waiting for confirmation'}</p>
+                                        <p className="text-xs text-white/54">{language === 'zh' ? '等待识别' : 'Waiting for analysis'}</p>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-4 rounded-[24px] border border-white/10 bg-white/6 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                            {language === 'zh' ? '准备顺序' : 'Next in line'}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {selectedInstitutions.map(option => (
+                                <span key={option.id} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/72">
+                                    <span className="size-2 rounded-full" style={{ backgroundColor: option.accent }} />
+                                    {localize(option.title, language)}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="rounded-[34px] border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-[#171d27]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                        {language === 'zh' ? '已选来源' : 'Selected sources'}
-                    </p>
-                    <div className="mt-5 space-y-3">
-                        {visibleRows.map(option => (
-                            <div key={option.id} className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 dark:border-white/10 dark:bg-[#0f141d]">
+                <div className="rounded-[34px] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#171d27]">
+                    <div className="flex items-end justify-between gap-4">
+                        <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                                {language === 'zh' ? '识别前预览' : 'Pre-check'}
+                            </p>
+                            <p className="mt-3 text-[1.58rem] font-black leading-[1.1] tracking-[-0.02em] text-slate-950 dark:text-white">
+                                {language === 'zh' ? '右边先准备好机构映射' : 'The mapped institutions are ready first'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {selectedInstitutions.map(option => (
+                            <div key={option.id} className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3.5 dark:border-white/10 dark:bg-[#0f141d]">
                                 <div className="flex items-center gap-3">
                                     <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
                                     <div className="min-w-0">
@@ -1274,13 +1373,6 @@ function ImportVisual({
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <div className="mt-6 rounded-[24px] bg-slate-50 p-4 dark:bg-[#0f141d]">
-                        <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                            {language === 'zh'
-                                ? '这里先把队列、机构和安全规则站稳。真正的识别结果会接在这套节奏后面。'
-                                : 'The queue, institution matching, and safety rhythm land here first. Recognition follows the same path later.'}
-                        </p>
                     </div>
                 </div>
             </div>
@@ -1307,12 +1399,14 @@ function PreviewVisual({
 }) {
     return (
         <VisualShell label={visualLabel}>
-            <div className="grid h-full gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#101828_100%)] p-6 text-white">
+            <div className="grid h-full gap-4 lg:grid-cols-[1.04fr_0.96fr]">
+                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#101828_100%)] p-5 text-white">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Workspace snapshot</p>
-                            <p className="mt-4 text-[2.7rem] font-black leading-[0.96] tracking-[-0.08em]">
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                                {language === 'zh' ? '桌面快照' : 'Workspace snapshot'}
+                            </p>
+                            <p className="mt-4 text-[2.2rem] font-black leading-[1] tracking-[-0.04em]">
                                 {formatUsd(DEMO_ACCOUNT_ROWS.reduce((sum, row) => sum + row.usdValue, 0))}
                             </p>
                             <p className="mt-3 max-w-xl text-sm leading-6 text-white/62">{openHint}</p>
@@ -1322,7 +1416,7 @@ function PreviewVisual({
                         </div>
                     </div>
 
-                    <div className="mt-8 rounded-[28px] border border-white/10 bg-white/6 p-5">
+                        <div className="mt-5 rounded-[28px] border border-white/10 bg-white/6 p-4">
                         <div className="flex items-center justify-between gap-4">
                             <p className="text-sm font-semibold text-white/72">{language === 'zh' ? '大类分布' : 'Category split'}</p>
                             <p className="text-xs font-semibold text-white/45">{language === 'zh' ? `${institutions.length} 个来源` : `${institutions.length} sources`}</p>
@@ -1339,9 +1433,9 @@ function PreviewVisual({
                                 />
                             ))}
                         </div>
-                        <div className="mt-5 grid gap-3 md:grid-cols-3">
+                        <div className="mt-4 grid gap-3 md:grid-cols-3">
                             {DEMO_TYPE_ROWS.map(row => (
-                                <div key={row.key} className="rounded-[20px] bg-white/8 px-4 py-4">
+                                <div key={row.key} className="rounded-[20px] bg-white/8 px-4 py-3.5">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">{row.label}</p>
                                     <p className="mt-3 text-2xl font-black tracking-[-0.06em] text-white">{row.share.toFixed(1)}%</p>
                                     <p className="mt-1 text-xs text-white/54">{formatUsd(row.usdValue)}</p>

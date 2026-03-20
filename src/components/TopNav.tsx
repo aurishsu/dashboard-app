@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { CircleHelp, Menu, MoonStar, SunMedium } from 'lucide-react';
+import { CircleHelp, Landmark, Menu, MoonStar, SunMedium } from 'lucide-react';
 import { useData } from '../context/useData';
 import { useTheme } from '../context/useTheme';
 
@@ -40,7 +40,7 @@ export function TopNav({
                             <Menu size={18} />
                         </button>
                         <div className="flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-[0_8px_20px_rgba(15,23,42,0.12)] dark:bg-white dark:text-slate-950">
-                            <span className="material-symbols-outlined font-bold">account_balance_wallet</span>
+                            <Landmark size={18} />
                         </div>
                         <div>
                             <h2 className="text-[1.05rem] font-bold tracking-[-0.03em] text-slate-900 dark:text-white">个人资产台账</h2>

@@ -82,13 +82,13 @@ export function BudgetPlanner() {
     const flowTotal = Math.max(monthlySupportAud, monthlyEssentialAud, 1);
 
     const monthlyMessage = monthlyFreeAud >= 0
-        ? `按现在这套数字，每月大概还能留下 ${formatAud(monthlyFreeAud)}，一年大概能留下 ${formatAud(yearlyFreeAud)}。`
-        : `按现在这套数字，每月还差 ${formatAud(Math.abs(monthlyFreeAud))}，一年会差 ${formatAud(Math.abs(yearlyFreeAud))}。`;
+        ? `按现在这套数字，每月大概还能留出 ${formatAud(monthlyFreeAud)}，一年大概能留出 ${formatAud(yearlyFreeAud)}。`
+        : `按现在这套数字，每月还需要补足 ${formatAud(Math.abs(monthlyFreeAud))}，一年大概需要补足 ${formatAud(Math.abs(yearlyFreeAud))}。`;
     const bufferLabel = monthlyEssentialAud <= 0
         ? '等待输入'
         : safetyGapAud >= 0
-            ? '安全线之上'
-            : '安全线之下';
+            ? '已覆盖'
+            : '还需补足';
 
     return (
         <div className="w-full space-y-6 animate-in fade-in duration-500">
@@ -107,7 +107,7 @@ export function BudgetPlanner() {
                 <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <TopStat label="本月净收入" value={formatAud(monthlySupportAud)} />
                     <TopStat label="每月固定成本" value={formatAud(monthlyEssentialAud)} />
-                    <TopStat label={monthlyFreeAud >= 0 ? '每月可留存' : '每月缺口'} value={formatAud(Math.abs(monthlyFreeAud))} />
+                    <TopStat label="月度结果" value={formatAud(Math.abs(monthlyFreeAud))} />
                     <TopStat label="生活资金池" value={formatAud(livingPoolAud)} />
                 </div>
             </section>
@@ -240,7 +240,7 @@ export function BudgetPlanner() {
                                     <BreakdownRow key={item.key} label={item.label} value={formatAud(item.value)} tone={item.tone} />
                                 ))}
                                 <BreakdownRow
-                                    label={monthlyFreeAud >= 0 ? '可留存 / 自由支配' : '每月缺口'}
+                                    label={monthlyFreeAud >= 0 ? '本月剩余空间' : '仍需补足'}
                                     value={formatAud(Math.abs(monthlyFreeAud))}
                                     tone={monthlyFreeAud >= 0 ? 'bg-slate-300 dark:bg-slate-500' : 'bg-slate-500 dark:bg-slate-300'}
                                 />
@@ -255,14 +255,14 @@ export function BudgetPlanner() {
                                 <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">月度结论</h2>
                             </div>
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                                {monthlyFreeAud >= 0 ? '本月有盈余' : '本月有缺口'}
+                                {monthlyFreeAud >= 0 ? '当前已覆盖' : '当前还需补足'}
                             </span>
                         </div>
 
                         <div className="mt-6 grid gap-3 sm:grid-cols-2">
                             <MiniStat label="全年总需求" value={formatAud(yearlyTotalNeedAud)} />
                             <MiniStat
-                                label={monthlyFreeAud >= 0 ? '本月可留存' : '本月缺口'}
+                                label="月度结果"
                                 value={formatAud(Math.abs(monthlyFreeAud))}
                                 tone={monthlyFreeAud >= 0 ? 'positive' : 'negative'}
                             />
@@ -283,9 +283,9 @@ export function BudgetPlanner() {
 
                             <div className="mt-4 grid gap-4">
                                 <ResultCard
-                                    label={safetyGapAud >= 0 ? '高于本月安全线' : '距离本月安全线还差'}
+                                    label="与本月安全线相比"
                                     value={formatAud(Math.abs(safetyGapAud))}
-                                    note={safetyGapAud >= 0 ? '按日常生活资金看，这个月的固定成本有缓冲。' : '按日常生活资金看，这个月还没有越过固定成本安全线。'}
+                                    note={safetyGapAud >= 0 ? '按日常生活资金看，当前已经覆盖这个月的固定成本。' : '按日常生活资金看，当前还没有完全覆盖这个月的固定成本。'}
                                 />
                                 <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{monthlyMessage}</p>
                             </div>
@@ -493,22 +493,22 @@ function HealthGaugeCard({
             panel: 'border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] dark:border-slate-800 dark:bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)]',
         },
         healthy: {
-            label: '健康',
+            label: '已覆盖',
             badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/12 dark:text-emerald-300',
             fill: 'bg-[linear-gradient(90deg,rgba(16,185,129,0.08)_0%,rgba(16,185,129,0.2)_100%)] dark:bg-[linear-gradient(90deg,rgba(16,185,129,0.12)_0%,rgba(16,185,129,0.24)_100%)]',
             panel: 'border-emerald-200 bg-[linear-gradient(180deg,#f6fbf8_0%,#ffffff_100%)] dark:border-emerald-500/20 dark:bg-[linear-gradient(180deg,#0f1e1a_0%,#0f172a_100%)]',
         },
         tight: {
-            label: '偏紧',
+            label: '接近边界',
             badge: 'bg-amber-100 text-amber-700 dark:bg-amber-500/12 dark:text-amber-300',
             fill: 'bg-[linear-gradient(90deg,rgba(245,158,11,0.08)_0%,rgba(245,158,11,0.2)_100%)] dark:bg-[linear-gradient(90deg,rgba(245,158,11,0.12)_0%,rgba(245,158,11,0.24)_100%)]',
             panel: 'border-amber-200 bg-[linear-gradient(180deg,#fffaf0_0%,#ffffff_100%)] dark:border-amber-500/20 dark:bg-[linear-gradient(180deg,#1b1911_0%,#0f172a_100%)]',
         },
         danger: {
-            label: '不健康',
-            badge: 'bg-rose-100 text-rose-700 dark:bg-rose-500/12 dark:text-rose-300',
-            fill: 'bg-[linear-gradient(90deg,rgba(244,63,94,0.08)_0%,rgba(244,63,94,0.2)_100%)] dark:bg-[linear-gradient(90deg,rgba(244,63,94,0.12)_0%,rgba(244,63,94,0.24)_100%)]',
-            panel: 'border-rose-200 bg-[linear-gradient(180deg,#fff4f5_0%,#ffffff_100%)] dark:border-rose-500/20 dark:bg-[linear-gradient(180deg,#211216_0%,#0f172a_100%)]',
+            label: '还需补足',
+            badge: 'bg-stone-100 text-stone-700 dark:bg-stone-500/12 dark:text-stone-300',
+            fill: 'bg-[linear-gradient(90deg,rgba(148,163,184,0.1)_0%,rgba(71,85,105,0.18)_100%)] dark:bg-[linear-gradient(90deg,rgba(148,163,184,0.12)_0%,rgba(71,85,105,0.26)_100%)]',
+            panel: 'border-slate-300 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] dark:border-slate-600 dark:bg-[linear-gradient(180deg,#151922_0%,#0f172a_100%)]',
         },
     }[healthState];
 
@@ -525,13 +525,13 @@ function HealthGaugeCard({
     const statusSummary = healthState === 'neutral'
         ? '先填本月净收入和固定成本'
         : deltaAud >= 0
-            ? `高出安全线 ${formatAud(deltaAud)}`
-            : `距离安全线还差 ${formatAud(Math.abs(deltaAud))}`;
+            ? `当前已覆盖安全线 ${formatAud(deltaAud)}`
+            : `当前还需补足 ${formatAud(Math.abs(deltaAud))}`;
     const statusCopy = {
         neutral: '先填本月净收入、房租和生活费，就能知道这个月到底安不安全。',
-        healthy: '本月净收入已经高于安全线，房租和生活费压不垮这个月的现金流。',
-        tight: '本月仍高于安全线，但缓冲不宽，额外开销一多就会踩线。',
-        danger: '本月净收入低于安全线，房租和生活费会直接把现金流压出缺口。',
+        healthy: '本月净收入已经盖过安全线，房租和生活费在这套数字里是被覆盖住的。',
+        tight: '本月虽然已经盖过安全线，但缓冲不宽，额外开销一多就容易贴边。',
+        danger: '本月净收入还没有盖过安全线，房租和生活费还需要额外补足。',
     }[healthState];
     const deltaTone = healthState === 'neutral' ? 'neutral' : deltaAud >= 0 ? 'positive' : 'negative';
     const monthlyFreeTone = healthState === 'neutral'
@@ -615,12 +615,12 @@ function HealthGaugeCard({
                         <MiniStat label="本月净收入" value={formatAud(incomeAud)} />
                         <MiniStat label="本月安全线" value={formatAud(safeLineAud)} />
                         <MiniStat
-                            label={deltaAud >= 0 ? '高出安全线' : '距离安全线还差'}
+                            label="与安全线差距"
                             value={formatAud(Math.abs(deltaAud))}
                             tone={deltaTone}
                         />
                         <MiniStat
-                            label={monthlyFreeAud >= 0 ? '本月可留存' : '本月缺口'}
+                            label="月度结果"
                             value={formatAud(Math.abs(monthlyFreeAud))}
                             tone={monthlyFreeTone}
                         />
@@ -665,7 +665,7 @@ function MiniStat({
     const className = {
         neutral: 'bg-white text-slate-950 ring-slate-200 dark:bg-slate-900 dark:text-white dark:ring-slate-700',
         positive: 'bg-slate-100 text-slate-950 ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700',
-        negative: 'bg-slate-950 text-white ring-slate-950/10 dark:bg-slate-700 dark:text-white dark:ring-slate-600',
+        negative: 'bg-slate-100 text-slate-950 ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700',
     }[tone];
 
     return (

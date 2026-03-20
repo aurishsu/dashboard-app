@@ -1,3 +1,15 @@
+import {
+    Camera,
+    ChevronRight,
+    FileImage,
+    FileText,
+    RefreshCcw,
+    Save,
+    SquarePen,
+    TrendingUp,
+    Upload,
+} from 'lucide-react';
+
 export function AccountDetails() {
     return (
         <>
@@ -5,9 +17,9 @@ export function AccountDetails() {
             <div className="flex flex-col gap-2 mb-8">
                 <nav className="flex text-xs font-medium text-slate-400 gap-2 items-center">
                     <a href="#" className="hover:text-primary">账户管理</a>
-                    <span className="material-symbols-outlined text-[10px]">chevron_right</span>
+                    <ChevronRight size={12} />
                     <a href="#" className="hover:text-primary">银行卡 (中/美/澳)</a>
-                    <span className="material-symbols-outlined text-[10px]">chevron_right</span>
+                    <ChevronRight size={12} />
                     <span className="text-slate-900 dark:text-slate-200">CBA Australia 详情</span>
                 </nav>
                 <div className="flex justify-between items-end">
@@ -17,11 +29,11 @@ export function AccountDetails() {
                     </div>
                     <div className="flex gap-3">
                         <button className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50">
-                            <span className="material-symbols-outlined text-[18px]">sync</span>
+                            <RefreshCcw size={18} />
                             手动刷新
                         </button>
                         <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-navy-accent shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
-                            <span className="material-symbols-outlined text-[18px]">save</span>
+                            <Save size={18} />
                             保存更新
                         </button>
                     </div>
@@ -34,7 +46,7 @@ export function AccountDetails() {
                 <div className="col-span-12 lg:col-span-7 space-y-6">
                     <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm">
                         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-5 mb-6">
-                            <span className="material-symbols-outlined text-primary">edit_note</span>
+                            <SquarePen size={18} className="text-primary" />
                             <h2 className="text-lg font-bold">基本信息编辑</h2>
                         </div>
 
@@ -73,17 +85,17 @@ export function AccountDetails() {
                                 <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-4 border border-slate-100 dark:border-slate-700">
                                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">上月余额对比</p>
                                     <p className="text-lg font-bold text-slate-700 dark:text-slate-200">$11,200.00</p>
-                                    <p className="text-xs text-primary font-medium flex items-center gap-1 mt-1">
-                                        <span className="material-symbols-outlined text-[14px]">trending_up</span>
-                                        +11.2% 较上月
+                                    <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1 dark:text-slate-400">
+                                        <TrendingUp size={14} />
+                                        暂时只展示当前录入结果
                                     </p>
                                 </div>
                                 <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-4 border border-slate-100 dark:border-slate-700">
                                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">本月支出合计</p>
                                     <p className="text-lg font-bold text-slate-700 dark:text-slate-200">$3,420.15</p>
-                                    <p className="text-xs text-rose-500 font-medium flex items-center gap-1 mt-1">
-                                        <span className="material-symbols-outlined text-[14px]">trending_down</span>
-                                        -5.4% 较均值
+                                    <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1 dark:text-slate-400">
+                                        <TrendingUp size={14} />
+                                        暂不展示波动判断
                                     </p>
                                 </div>
                             </div>
@@ -99,7 +111,7 @@ export function AccountDetails() {
                         </div>
 
                         <div className="mb-6 size-20 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-primary shadow-xl group-hover:scale-110 transition-transform">
-                            <span className="material-symbols-outlined text-[40px] font-light">camera_enhance</span>
+                            <Camera size={40} strokeWidth={1.8} />
                         </div>
 
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">AI 智能识图</h3>
@@ -108,7 +120,7 @@ export function AccountDetails() {
                         </p>
 
                         <div className="w-full border-2 border-dashed border-primary/40 rounded-xl p-10 bg-white/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-all cursor-pointer">
-                            <span className="material-symbols-outlined text-4xl text-slate-300 mb-3">upload_file</span>
+                            <Upload size={40} className="mb-3 text-slate-300" />
                             <p className="text-sm font-bold text-slate-600 dark:text-slate-300">点击或拖拽文件上传</p>
                             <p className="text-[11px] text-slate-400 mt-2">支持 PNG, JPG, PDF (最大 10MB)</p>
                         </div>
@@ -121,7 +133,7 @@ export function AccountDetails() {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between p-3 rounded-lg bg-white/70 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700">
                                     <div className="flex items-center gap-3 text-left">
-                                        <span className="material-symbols-outlined text-slate-400 text-sm">image</span>
+                                        <FileImage size={16} className="text-slate-400" />
                                         <div>
                                             <p className="text-xs font-bold truncate w-24">CBA_statement_oct.jpg</p>
                                             <p className="text-[10px] text-slate-400">2023-11-19 识别成功</p>
@@ -132,7 +144,7 @@ export function AccountDetails() {
 
                                 <div className="flex items-center justify-between p-3 rounded-lg bg-white/70 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700">
                                     <div className="flex items-center gap-3 text-left">
-                                        <span className="material-symbols-outlined text-slate-400 text-sm">picture_as_pdf</span>
+                                        <FileText size={16} className="text-slate-400" />
                                         <div>
                                             <p className="text-xs font-bold truncate w-24">Sept_Summary.pdf</p>
                                             <p className="text-[10px] text-slate-400">2023-10-20 识别成功</p>
