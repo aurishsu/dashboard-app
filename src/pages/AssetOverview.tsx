@@ -176,43 +176,45 @@ export function AssetOverview() {
                                 </div>
                             </div>
 
-                            <div className="mt-6 grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start">
-                                <div className="relative h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={currencyBreakdown} innerRadius={72} outerRadius={96} paddingAngle={4} dataKey="usdValue" stroke="none">
-                                                {currencyBreakdown.map(row => (
-                                                    <Cell key={row.key} fill={CURRENCY_COLORS[row.key] || '#64748b'} />
-                                                ))}
-                                            </Pie>
-                                            <RechartsTooltip
-                                                formatter={(value: number | string | undefined) => [
-                                                    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value ?? 0)),
-                                                    'USD Value',
-                                                ]}
-                                                contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)' }}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                                        <p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400">已记录</p>
-                                        <p className="metric-value mt-2 text-3xl">{currencyBreakdown.length}</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">个币种</p>
+                            <div className="mt-6 space-y-6">
+                                <div className="mx-auto w-full max-w-[320px]">
+                                    <div className="relative h-64">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie data={currencyBreakdown} innerRadius={72} outerRadius={96} paddingAngle={4} dataKey="usdValue" stroke="none">
+                                                    {currencyBreakdown.map(row => (
+                                                        <Cell key={row.key} fill={CURRENCY_COLORS[row.key] || '#64748b'} />
+                                                    ))}
+                                                </Pie>
+                                                <RechartsTooltip
+                                                    formatter={(value: number | string | undefined) => [
+                                                        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value ?? 0)),
+                                                        'USD Value',
+                                                    ]}
+                                                    contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)' }}
+                                                />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                            <p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400">已记录</p>
+                                            <p className="metric-value mt-2 text-3xl">{currencyBreakdown.length}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">个币种</p>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="grid gap-4 lg:grid-cols-2">
                                     {currencyBreakdown.map(row => (
                                         <div key={row.key} className="min-w-0 rounded-[22px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="min-w-0 flex items-start gap-3">
                                                     <span className="size-3 rounded-full" style={{ backgroundColor: CURRENCY_COLORS[row.key] || '#64748b' }} />
                                                     <div className="min-w-0">
                                                         <p className="font-bold text-slate-900 dark:text-white">{row.label}</p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">出现于 {row.count} 条余额记录</p>
                                                     </div>
                                                 </div>
-                                                <div className="text-right">
+                                                <div className="shrink-0 text-right">
                                                     <p className="metric-value text-xl">{row.share.toFixed(1)}%</p>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">
                                                         {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(row.usdValue)}

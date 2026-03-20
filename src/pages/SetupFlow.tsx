@@ -168,7 +168,7 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
         sources: {
             eyebrow: '常用来源',
             title: '先圈出你常用的机构',
-            body: '这里只显示你刚才选的地区里最相关的机构，后面导入截图时会先按这些来源去匹配。',
+            body: '地区只会影响推荐顺序，不会把其他常用机构删掉。先把你最常用的来源圈出来，后面识别会从这些入口开始。',
             institutionsLabel: '先标记最常用的机构',
             banks: '银行',
             wallets: '钱包',
@@ -235,7 +235,7 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
         sources: {
             eyebrow: 'COMMON SOURCES',
             title: 'Mark the institutions you use most',
-            body: 'This list now follows the region you chose above, so the next matching pass starts from the right institutions.',
+            body: 'Your region now changes the recommendation order only. It does not remove other institutions you may still use.',
             institutionsLabel: 'Most common institutions',
             banks: 'Banks',
             wallets: 'Wallets',
@@ -365,7 +365,12 @@ function getVisibleInstitutions(regionId: SetupRegionId | null, assetIds: SetupA
     if (assetIds.includes('wallet')) groups.add('wallet');
     if (assetIds.includes('broker')) groups.add('broker');
     if (groups.size === 0) return [];
-    return SETUP_INSTITUTIONS.filter(option => groups.has(option.group) && (!regionId || option.regions.includes(regionId)));
+    return SETUP_INSTITUTIONS.filter(option => groups.has(option.group)).sort((left, right) => {
+        const leftPriority = regionId && left.regions.includes(regionId) ? 0 : 1;
+        const rightPriority = regionId && right.regions.includes(regionId) ? 0 : 1;
+        if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+        return left.title.en.localeCompare(right.title.en);
+    });
 }
 
 function getRecommendedInstitutions(regionId: SetupRegionId | null, assetIds: SetupAssetId[]) {
@@ -416,6 +421,10 @@ export function SetupFlow() {
             broker: visibleInstitutions.filter(option => option.group === 'broker'),
         }),
         [visibleInstitutions],
+    );
+    const recommendedInstitutionIds = useMemo(
+        () => new Set(getRecommendedInstitutions(draft.regionId, draft.assetIds)),
+        [draft.regionId, draft.assetIds],
     );
     const groupLabels = getInstitutionGroupLabels(language);
     const hasPlusAssets = draft.assetIds.includes('property') || draft.assetIds.includes('vehicle');
@@ -692,8 +701,8 @@ export function SetupFlow() {
                             {selectedRegion && (
                                 <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-[#141b26] dark:text-slate-300">
                                     {language === 'zh'
-                                        ? `当前地区：${localize(selectedRegion.title, language)}`
-                                        : `Current region: ${localize(selectedRegion.title, language)}`}
+                                        ? `当前地区：${localize(selectedRegion.title, language)}。这里只调整推荐顺序，不会隐藏其他常用机构。`
+                                        : `Current region: ${localize(selectedRegion.title, language)}. This only changes recommendation priority and keeps the rest available.`}
                                 </div>
                             )}
                             <div className="space-y-3">
@@ -703,6 +712,7 @@ export function SetupFlow() {
                                         <div className="flex flex-wrap gap-1">
                                             {groupedVisibleInstitutions[group].map(option => {
                                                 const active = draft.institutions.includes(option.id);
+                                                const recommended = recommendedInstitutionIds.has(option.id);
                                                 return (
                                                     <button
                                                         key={option.id}
@@ -710,13 +720,21 @@ export function SetupFlow() {
                                                         onClick={() => toggleInstitution(option.id)}
                                                         className="setup-chip-lift inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-[0.01em]"
                                                         style={{
-                                                            borderColor: active ? option.accent : undefined,
-                                                            backgroundColor: active ? `${option.accent}14` : undefined,
+                                                            borderColor: active ? option.accent : recommended ? `${option.accent}55` : undefined,
+                                                            backgroundColor: active ? `${option.accent}14` : recommended ? `${option.accent}0b` : undefined,
                                                             color: active ? option.accent : undefined,
                                                         }}
                                                     >
                                                         <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
                                                         {localize(option.title, language)}
+                                                        {recommended && !active ? (
+                                                            <span
+                                                                className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-[0.12em]"
+                                                                style={{ backgroundColor: `${option.accent}14`, color: option.accent }}
+                                                            >
+                                                                {language === 'zh' ? '优先' : 'PRIORITY'}
+                                                            </span>
+                                                        ) : null}
                                                     </button>
                                                 );
                                             })}
