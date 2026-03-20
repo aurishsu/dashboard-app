@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 import type { AccountData, Currency, ExchangeRates } from '../types/data';
 import type { BudgetItem, EssentialPlan, EssentialPlanKey, ReminderItem, SupportPlan, SupportPlanKey, SupportSource } from '../types/planner';
+import type { DemoWorkspaceConfig } from '../lib/demoWorkspace';
 
 export interface DataContextType {
     accounts: AccountData[];
@@ -20,7 +21,7 @@ export interface DataContextType {
     addSubBalance: (accountId: string, currency: Currency, initialBalance?: number) => void;
     deleteSubBalance: (accountId: string, currency: Currency) => void;
     resetToStarterData: () => void;
-    loadDemoWorkspace: () => void;
+    loadDemoWorkspace: (config?: DemoWorkspaceConfig) => void;
     restoreBackupData: () => void;
     hasBackupData: boolean;
     updateExchangeRates: (rates: Partial<ExchangeRates>) => void;

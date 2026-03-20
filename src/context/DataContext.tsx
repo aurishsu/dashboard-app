@@ -28,7 +28,7 @@ import {
 } from '../types/planner';
 import { DataContext } from './data-context';
 import { advanceMonthlyDueDate, advanceYearlyDueDate } from '../utils/plannerMetrics';
-import { createDemoWorkspace } from '../lib/demoWorkspace';
+import { createDemoWorkspace, type DemoWorkspaceConfig } from '../lib/demoWorkspace';
 
 const STORAGE_KEY = 'finance_accounts_v3';
 const BUDGET_STORAGE_KEY = 'finance_budget_v1';
@@ -266,10 +266,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setSupportSources(STARTER_SUPPORT_SOURCES.map(source => ({ ...source })));
     };
 
-    const loadDemoWorkspace = () => {
+    const loadDemoWorkspace = (config?: DemoWorkspaceConfig) => {
         backupCurrentWorkspace();
 
-        const demo = createDemoWorkspace();
+        const demo = createDemoWorkspace(config);
         setAccounts(demo.accounts);
         setExchangeRates(demo.exchangeRates);
         setBudgetItems(demo.budgetItems);

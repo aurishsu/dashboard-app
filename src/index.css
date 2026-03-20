@@ -201,15 +201,15 @@
   }
 
   .landing-title-zh {
-    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-    font-weight: 580;
+    font-family: var(--font-display);
+    font-weight: 700;
     text-wrap: balance;
     font-synthesis-weight: none;
   }
 
   .landing-title-en {
-    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "InterCustom", sans-serif;
-    font-weight: 680;
+    font-family: var(--font-display);
+    font-weight: 700;
     text-wrap: balance;
     font-synthesis-weight: none;
   }

@@ -156,20 +156,20 @@ function delayStyle(ms: number): CSSProperties {
 
 function heroTitleClass(language: SiteLanguage) {
     return language === 'zh'
-        ? 'landing-title-zh text-[clamp(3.5rem,6.5vw,6.4rem)] leading-[0.98] tracking-[-0.045em] lg:whitespace-nowrap'
-        : 'landing-title-en mx-auto max-w-[13ch] text-[clamp(3rem,5.2vw,5.5rem)] leading-[0.98] tracking-[-0.055em]';
+        ? 'landing-title-zh text-[clamp(3.2rem,6vw,5.9rem)] leading-[1] tracking-[-0.03em] lg:whitespace-nowrap'
+        : 'landing-title-en mx-auto max-w-[13.5ch] text-[clamp(3rem,5vw,5.2rem)] leading-[0.99] tracking-[-0.045em]';
 }
 
 function sceneTitleClass(language: SiteLanguage) {
     return language === 'zh'
-        ? 'landing-title-zh max-w-[10.6ch] text-[clamp(2.8rem,4.7vw,4.9rem)] leading-[1.02] tracking-[-0.042em]'
-        : 'landing-title-en max-w-[13.2ch] text-[clamp(2.5rem,4vw,4.2rem)] leading-[1.02] tracking-[-0.045em]';
+        ? 'landing-title-zh max-w-[11.2ch] text-[clamp(2.7rem,4.5vw,4.6rem)] leading-[1.04] tracking-[-0.028em]'
+        : 'landing-title-en max-w-[13.2ch] text-[clamp(2.5rem,4vw,4.1rem)] leading-[1.03] tracking-[-0.04em]';
 }
 
 function finaleTitleClass(language: SiteLanguage) {
     return language === 'zh'
-        ? 'landing-title-zh max-w-[10ch] text-[clamp(3rem,5.4vw,5.4rem)] leading-[1.02] tracking-[-0.045em]'
-        : 'landing-title-en max-w-[12ch] text-[clamp(2.8rem,4.8vw,5rem)] leading-[1] tracking-[-0.05em]';
+        ? 'landing-title-zh max-w-[10.4ch] text-[clamp(2.9rem,5.2vw,5rem)] leading-[1.03] tracking-[-0.03em]'
+        : 'landing-title-en max-w-[12.4ch] text-[clamp(2.8rem,4.8vw,4.8rem)] leading-[1.01] tracking-[-0.042em]';
 }
 
 export function PublicHome() {

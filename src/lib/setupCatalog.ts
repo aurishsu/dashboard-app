@@ -3,9 +3,10 @@ export type LocalizedText = {
     en: string;
 };
 
-export type SetupStepId = 'profile' | 'assets' | 'sources' | 'import' | 'preview';
+export type SetupStepId = 'profile' | 'assets' | 'region' | 'sources' | 'import' | 'preview';
 export type SetupProfileId = 'student' | 'working' | 'founder' | 'family' | 'global';
 export type SetupAssetId = 'bank' | 'wallet' | 'broker' | 'property' | 'vehicle';
+export type SetupRegionId = 'au' | 'cn' | 'sg' | 'my' | 'hk' | 'us';
 export type SetupInstitutionGroup = 'bank' | 'wallet' | 'broker';
 export type SetupInstitutionId =
     | 'cba'
@@ -44,9 +45,17 @@ export type SetupAssetOption = {
     gate: 'core' | 'plus';
 };
 
+export type SetupRegionOption = {
+    id: SetupRegionId;
+    title: LocalizedText;
+    note: LocalizedText;
+    helper: LocalizedText;
+};
+
 export type SetupInstitution = {
     id: SetupInstitutionId;
     group: SetupInstitutionGroup;
+    regions: SetupRegionId[];
     title: LocalizedText;
     note: LocalizedText;
     accent: string;
@@ -64,6 +73,11 @@ export const SETUP_STEPS: SetupStepMeta[] = [
         id: 'assets',
         label: { zh: '资产', en: 'ASSETS' },
         short: { zh: '先选类型', en: 'Choose types' },
+    },
+    {
+        id: 'region',
+        label: { zh: '地区', en: 'REGION' },
+        short: { zh: '先选生活地', en: 'Choose region' },
     },
     {
         id: 'sources',
@@ -148,10 +162,50 @@ export const ASSET_OPTIONS: SetupAssetOption[] = [
     },
 ];
 
+export const SETUP_REGIONS: SetupRegionOption[] = [
+    {
+        id: 'au',
+        title: { zh: '澳洲', en: 'Australia' },
+        note: { zh: '主流澳洲银行卡、工资卡和本地券商入口。', en: 'Australian retail banks, salary cards, and local investing entry points.' },
+        helper: { zh: '先看日常银行卡和工资入口。', en: 'Lead with everyday banking and salary accounts.' },
+    },
+    {
+        id: 'cn',
+        title: { zh: '中国内地', en: 'Mainland China' },
+        note: { zh: '更常见的是中国银行卡、微信和支付宝。', en: 'Typically centered on Chinese bank cards, WeChat, and Alipay.' },
+        helper: { zh: '先把钱包和主银行卡摆上桌面。', en: 'Bring wallets and primary bank cards forward first.' },
+    },
+    {
+        id: 'sg',
+        title: { zh: '新加坡', en: 'Singapore' },
+        note: { zh: '偏向多币种账户和券商入口。', en: 'More multicurrency accounts and broker-heavy entry points.' },
+        helper: { zh: '先看多币种主账户，再看券商。', en: 'Lead with multicurrency banking, then broker accounts.' },
+    },
+    {
+        id: 'my',
+        title: { zh: '马来西亚', en: 'Malaysia' },
+        note: { zh: '更适合先看本地银行卡和跨币种现金。', en: 'Often starts from local banks and cross-currency cash.' },
+        helper: { zh: '先把现金入口整理清楚。', en: 'Clean up cash entry points first.' },
+    },
+    {
+        id: 'hk',
+        title: { zh: '香港', en: 'Hong Kong' },
+        note: { zh: '更容易同时出现多币种银行卡和跨境账户。', en: 'More likely to mix multicurrency banks and cross-border accounts.' },
+        helper: { zh: '先把多币种和跨境账户摆一起。', en: 'Bring multicurrency and cross-border accounts together first.' },
+    },
+    {
+        id: 'us',
+        title: { zh: '美国', en: 'United States' },
+        note: { zh: '偏向美元银行卡和券商入口。', en: 'Usually led by USD bank accounts and broker accounts.' },
+        helper: { zh: '先看美元主账户和投资入口。', en: 'Lead with USD banking and investing.' },
+    },
+];
+
 export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'cba',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'CommBank / CBA', en: 'CommBank / CBA' },
         note: { zh: '澳洲常见主账户', en: 'Core Australian everyday banking' },
         accent: '#F7C948',
@@ -161,6 +215,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'anz',
         group: 'bank',
+        regions: ['au', 'sg'],
         title: { zh: 'ANZ', en: 'ANZ' },
         note: { zh: '偏冷蓝的主银行模板', en: 'Cool blue retail banking template' },
         accent: '#0A6BCE',
@@ -170,6 +225,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'westpac',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'Westpac', en: 'Westpac' },
         note: { zh: '澳洲红系主银行模板', en: 'Red-led Australian major bank' },
         accent: '#D71920',
@@ -179,6 +235,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'nab',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'NAB', en: 'NAB' },
         note: { zh: 'National Australia Bank', en: 'National Australia Bank' },
         accent: '#C41230',
@@ -188,6 +245,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'st-george',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'St.George', en: 'St.George' },
         note: { zh: '偏红白的支行体系', en: 'White and red branch banking look' },
         accent: '#C21F26',
@@ -197,6 +255,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'macquarie',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'Macquarie', en: 'Macquarie' },
         note: { zh: '深青蓝投资银行气质', en: 'Deeper teal-toned investment banking feel' },
         accent: '#004B5A',
@@ -206,6 +265,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'ing',
         group: 'bank',
+        regions: ['au', 'us'],
         title: { zh: 'ING', en: 'ING' },
         note: { zh: '橙色系储蓄模板', en: 'Orange-led savings template' },
         accent: '#F36F21',
@@ -215,6 +275,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'ubank',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'ubank', en: 'ubank' },
         note: { zh: '更鲜明的橙色数字银行', en: 'Bright orange digital banking' },
         accent: '#FF6A00',
@@ -224,6 +285,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'bankwest',
         group: 'bank',
+        regions: ['au'],
         title: { zh: 'Bankwest', en: 'Bankwest' },
         note: { zh: '偏明亮黄的次级主账户', en: 'Bright yellow secondary banking colourway' },
         accent: '#F1C40F',
@@ -233,6 +295,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'hsbc',
         group: 'bank',
+        regions: ['au', 'sg', 'my', 'hk', 'us'],
         title: { zh: 'HSBC', en: 'HSBC' },
         note: { zh: '适合多币种账户', en: 'Useful for multicurrency account matching' },
         accent: '#DB0011',
@@ -242,6 +305,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'boc',
         group: 'bank',
+        regions: ['cn', 'hk'],
         title: { zh: '中国银行', en: 'Bank of China' },
         note: { zh: '红色系中文银行模板', en: 'Chinese red retail banking template' },
         accent: '#C41230',
@@ -251,6 +315,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'alipay',
         group: 'wallet',
+        regions: ['cn'],
         title: { zh: '支付宝', en: 'Alipay' },
         note: { zh: '蓝色钱包模板', en: 'Blue wallet template' },
         accent: '#1677FF',
@@ -260,6 +325,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'wechat',
         group: 'wallet',
+        regions: ['cn', 'hk', 'my', 'sg'],
         title: { zh: '微信 / 微信零钱', en: 'WeChat Wallet' },
         note: { zh: '绿色钱包模板', en: 'Green wallet template' },
         accent: '#1AAD19',
@@ -269,6 +335,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'ibkr',
         group: 'broker',
+        regions: ['au', 'sg', 'hk', 'us'],
         title: { zh: 'Interactive Brokers', en: 'Interactive Brokers' },
         note: { zh: '券商账户模板', en: 'Broker account template' },
         accent: '#C62857',
@@ -278,6 +345,7 @@ export const SETUP_INSTITUTIONS: SetupInstitution[] = [
     {
         id: 'moomoo',
         group: 'broker',
+        regions: ['au', 'sg', 'hk', 'us', 'my'],
         title: { zh: 'Moomoo', en: 'Moomoo' },
         note: { zh: '偏橘红的投资账户模板', en: 'Orange-red investing template' },
         accent: '#FF6A3D',

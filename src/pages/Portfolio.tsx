@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, Landmark, Layers3 } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, ChevronUp, Landmark, Layers3 } from 'lucide-react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { useData } from '../context/useData';
 import { buildAccountRows, buildCurrencyBreakdown, buildTypeBreakdown } from '../utils/accountMetrics';
@@ -77,6 +77,7 @@ const ACCOUNT_META: Record<string, { color: string; badge: string; stripe: strin
 export function Portfolio() {
     const { accounts, totalUSD, toUSD } = useData();
     const [mode, setMode] = useState<DistributionMode>('category');
+    const [showAllAccounts, setShowAllAccounts] = useState(false);
 
     const accountRows = useMemo(() => buildAccountRows(accounts, toUSD), [accounts, toUSD]);
     const typeBreakdown = useMemo(() => buildTypeBreakdown(accounts, toUSD), [accounts, toUSD]);
@@ -112,7 +113,18 @@ export function Portfolio() {
         .filter(row => row.account.type !== 'broker')
         .reduce((sum, row) => sum + row.usdValue, 0);
     const leadingDistribution = distributionRows[0];
-    const detailedRows = mode === 'category' ? categoryRows : accountDistributionRows.slice(0, 6);
+    const visibleAccountRows = showAllAccounts ? rankedAccounts : leadingAccounts;
+    const detailedRows = mode === 'category'
+        ? categoryRows
+        : visibleAccountRows.map(row => ({
+            key: row.account.id,
+            label: row.account.name,
+            usdValue: row.usdValue,
+            share: row.share,
+            count: row.currencyCount,
+            color: getAccountAppearance(row.account.id).color,
+            badge: getAccountAppearance(row.account.id).badge,
+        }));
 
     return (
         <div className="w-full space-y-8 animate-in fade-in duration-500">
@@ -172,6 +184,16 @@ export function Portfolio() {
                                 分账户
                             </ViewToggle>
                         </div>
+                        {mode === 'account' && rankedAccounts.length > 5 && (
+                            <button
+                                type="button"
+                                onClick={() => setShowAllAccounts(current => !current)}
+                                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-white"
+                            >
+                                {showAllAccounts ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                {showAllAccounts ? '收起账户' : '展开所有账户'}
+                            </button>
+                        )}
                     </div>
 
                     <div className="mt-6 rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,#101827_0%,#0f172a_100%)]">
@@ -245,7 +267,7 @@ export function Portfolio() {
                                             value={formatUsd(row.usdValue)}
                                         />
                                     ))
-                                    : leadingAccounts.map(row => (
+                                    : visibleAccountRows.map(row => (
                                         <DistributionSummaryRow
                                             key={row.account.id}
                                             color={getAccountAppearance(row.account.id).color}
@@ -258,13 +280,24 @@ export function Portfolio() {
                                         />
                                     ))}
 
-                                {mode === 'account' && remainingAccounts.length > 0 && (
+                                {mode === 'account' && !showAllAccounts && remainingAccounts.length > 0 && (
                                     <div className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
                                         <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                                             其余 {remainingAccounts.length} 个账户合计占 {remainingShare.toFixed(1)}%
                                         </p>
                                         <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                                             上面先保留最值得先看的账户，剩余部分继续算在整张分布里，不再重复铺满一整列。
+                                        </p>
+                                    </div>
+                                )}
+
+                                {mode === 'account' && showAllAccounts && remainingAccounts.length > 0 && (
+                                    <div className="rounded-[24px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                            已展开全部 {rankedAccounts.length} 个账户
+                                        </p>
+                                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                                            现在右侧会把所有有余额的账户都列出来，方便你完整查看每个入口的占比。
                                         </p>
                                     </div>
                                 )}

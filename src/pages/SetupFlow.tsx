@@ -29,6 +29,7 @@ import {
     ASSET_OPTIONS,
     FREE_UPLOAD_LIMIT,
     PROFILE_OPTIONS,
+    SETUP_REGIONS,
     SETUP_INSTITUTIONS,
     SETUP_SAFETY_RULES,
     SETUP_STEPS,
@@ -38,13 +39,14 @@ import {
     type SetupInstitutionGroup,
     type SetupInstitutionId,
     type SetupProfileId,
+    type SetupRegionId,
     type SetupStepId,
 } from '../lib/setupCatalog';
 import { createDemoWorkspace } from '../lib/demoWorkspace';
 import { loadSiteLanguage, saveSiteLanguage, type SiteLanguage } from '../lib/siteLanguage';
-import { buildAccountRows, buildCurrencyBreakdown, buildTypeBreakdown } from '../utils/accountMetrics';
+import { buildAccountRows, buildCurrencyBreakdown, buildTypeBreakdown, type AccountRow } from '../utils/accountMetrics';
 
-const SETUP_DRAFT_KEY = 'harbor_ledger_setup_draft_v2';
+const SETUP_DRAFT_KEY = 'harbor_ledger_setup_draft_v3';
 const WELCOME_STORAGE_KEY = 'personal_ledger_welcome_seen_v2';
 const ONBOARDING_STORAGE_KEY = 'personal_ledger_onboarding_v1';
 
@@ -52,6 +54,7 @@ type SetupDraft = {
     currentStep: SetupStepId;
     profileId: SetupProfileId | null;
     assetIds: SetupAssetId[];
+    regionId: SetupRegionId | null;
     institutions: SetupInstitutionId[];
     uploadNames: string[];
     skippedImport: boolean;
@@ -85,6 +88,12 @@ type FlowCopy = {
         body: string;
         core: string;
         plus: string;
+        visualLabel: string;
+    };
+    region: {
+        eyebrow: string;
+        title: string;
+        body: string;
         visualLabel: string;
     };
     sources: {
@@ -150,10 +159,16 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             plus: 'Plus',
             visualLabel: '桌面结构',
         },
+        region: {
+            eyebrow: '生活地区',
+            title: '你现在主要生活在哪个地区',
+            body: '先把地区定下来，下一步的银行卡、钱包和券商来源才会更贴近你真的会用到的那一批。',
+            visualLabel: '地区预览',
+        },
         sources: {
             eyebrow: '常用来源',
-            title: '先圈出常用机构',
-            body: '后面导入截图时，会先按这里的机构去贴近匹配。',
+            title: '先圈出你常用的机构',
+            body: '这里只显示你刚才选的地区里最相关的机构，后面导入截图时会先按这些来源去匹配。',
             institutionsLabel: '先标记最常用的机构',
             banks: '银行',
             wallets: '钱包',
@@ -211,10 +226,16 @@ const COPY: Record<SiteLanguage, FlowCopy> = {
             plus: 'Plus',
             visualLabel: 'Surface structure',
         },
+        region: {
+            eyebrow: 'LIVING REGION',
+            title: 'Where do you mainly live right now',
+            body: 'Set the region first so the next institution list matches the cards and wallets you are more likely to use.',
+            visualLabel: 'Region preview',
+        },
         sources: {
             eyebrow: 'COMMON SOURCES',
             title: 'Mark the institutions you use most',
-            body: 'When screenshots arrive later, matching starts from these institutions first.',
+            body: 'This list now follows the region you chose above, so the next matching pass starts from the right institutions.',
             institutionsLabel: 'Most common institutions',
             banks: 'Banks',
             wallets: 'Wallets',
@@ -265,15 +286,6 @@ const ASSET_ICONS = {
     vehicle: CarFront,
 } satisfies Record<SetupAssetId, typeof Landmark>;
 
-const DEMO_WORKSPACE = createDemoWorkspace();
-const demoToUSD = (balance: number, currency: keyof typeof DEMO_WORKSPACE.exchangeRates | 'USD') => {
-    if (currency === 'USD') return balance;
-    return balance / DEMO_WORKSPACE.exchangeRates[currency];
-};
-const DEMO_ACCOUNT_ROWS = buildAccountRows(DEMO_WORKSPACE.accounts, demoToUSD);
-const DEMO_TYPE_ROWS = buildTypeBreakdown(DEMO_WORKSPACE.accounts, demoToUSD);
-const DEMO_CURRENCY_ROWS = buildCurrencyBreakdown(DEMO_WORKSPACE.accounts, demoToUSD);
-
 function localize(text: LocalizedText, language: SiteLanguage) {
     return text[language];
 }
@@ -283,7 +295,8 @@ function createDefaultDraft(): SetupDraft {
         currentStep: 'profile',
         profileId: null,
         assetIds: ['bank', 'wallet', 'broker'],
-        institutions: ['cba', 'boc', 'hsbc', 'alipay', 'wechat', 'ibkr', 'moomoo'],
+        regionId: null,
+        institutions: [],
         uploadNames: [],
         skippedImport: false,
     };
@@ -306,6 +319,7 @@ function loadDraft(): SetupDraft {
             assetIds: Array.isArray(parsed.assetIds)
                 ? parsed.assetIds.filter((id): id is SetupAssetId => ASSET_OPTIONS.some(option => option.id === id))
                 : fallback.assetIds,
+            regionId: SETUP_REGIONS.some(option => option.id === parsed.regionId) ? parsed.regionId! : fallback.regionId,
             institutions: Array.isArray(parsed.institutions)
                 ? parsed.institutions.filter((id): id is SetupInstitutionId => SETUP_INSTITUTIONS.some(option => option.id === id))
                 : fallback.institutions,
@@ -323,6 +337,8 @@ function isStepReady(stepId: SetupStepId, draft: SetupDraft) {
             return Boolean(draft.profileId);
         case 'assets':
             return draft.assetIds.length > 0;
+        case 'region':
+            return Boolean(draft.regionId);
         case 'sources':
             return draft.institutions.length > 0;
         case 'import':
@@ -343,13 +359,23 @@ function getHighestUnlockedIndex(draft: SetupDraft) {
     return Math.max(highest, SETUP_STEPS.findIndex(step => step.id === draft.currentStep));
 }
 
-function getVisibleInstitutions(assetIds: SetupAssetId[]) {
+function getVisibleInstitutions(regionId: SetupRegionId | null, assetIds: SetupAssetId[]) {
     const groups = new Set<SetupInstitutionGroup>();
     if (assetIds.includes('bank')) groups.add('bank');
     if (assetIds.includes('wallet')) groups.add('wallet');
     if (assetIds.includes('broker')) groups.add('broker');
-    if (groups.size === 0) return SETUP_INSTITUTIONS;
-    return SETUP_INSTITUTIONS.filter(option => groups.has(option.group));
+    if (groups.size === 0) return [];
+    return SETUP_INSTITUTIONS.filter(option => groups.has(option.group) && (!regionId || option.regions.includes(regionId)));
+}
+
+function getRecommendedInstitutions(regionId: SetupRegionId | null, assetIds: SetupAssetId[]) {
+    if (!regionId) return [];
+    const visible = getVisibleInstitutions(regionId, assetIds);
+    return [
+        ...visible.filter(option => option.group === 'bank').slice(0, 3),
+        ...visible.filter(option => option.group === 'wallet').slice(0, 2),
+        ...visible.filter(option => option.group === 'broker').slice(0, 2),
+    ].map(option => option.id);
 }
 
 function getInstitutionGroupLabels(language: SiteLanguage) {
@@ -377,7 +403,8 @@ export function SetupFlow() {
     const currentStepIndex = SETUP_STEPS.findIndex(step => step.id === draft.currentStep);
     const highestUnlockedIndex = getHighestUnlockedIndex(draft);
     const selectedProfile = ACTIVE_PROFILE_OPTIONS.find(option => option.id === draft.profileId) ?? ACTIVE_PROFILE_OPTIONS[1];
-    const visibleInstitutions = useMemo(() => getVisibleInstitutions(draft.assetIds), [draft.assetIds]);
+    const selectedRegion = SETUP_REGIONS.find(option => option.id === draft.regionId) ?? null;
+    const visibleInstitutions = useMemo(() => getVisibleInstitutions(draft.regionId, draft.assetIds), [draft.regionId, draft.assetIds]);
     const selectedInstitutions = useMemo(
         () => SETUP_INSTITUTIONS.filter(option => draft.institutions.includes(option.id)),
         [draft.institutions],
@@ -393,6 +420,26 @@ export function SetupFlow() {
     const groupLabels = getInstitutionGroupLabels(language);
     const hasPlusAssets = draft.assetIds.includes('property') || draft.assetIds.includes('vehicle');
     const stepReady = isStepReady(draft.currentStep, draft);
+    const previewWorkspace = useMemo(
+        () =>
+            createDemoWorkspace({
+                profileId: draft.profileId,
+                regionId: draft.regionId,
+                assetIds: draft.assetIds,
+                institutions: draft.institutions,
+            }),
+        [draft.profileId, draft.regionId, draft.assetIds, draft.institutions],
+    );
+    const previewToUSD = useMemo(
+        () => (balance: number, currency: keyof typeof previewWorkspace.exchangeRates | 'USD') => {
+            if (currency === 'USD') return balance;
+            return balance / previewWorkspace.exchangeRates[currency];
+        },
+        [previewWorkspace],
+    );
+    const previewAccountRows = useMemo(() => buildAccountRows(previewWorkspace.accounts, previewToUSD), [previewWorkspace.accounts, previewToUSD]);
+    const previewTypeRows = useMemo(() => buildTypeBreakdown(previewWorkspace.accounts, previewToUSD), [previewWorkspace.accounts, previewToUSD]);
+    const previewCurrencyRows = useMemo(() => buildCurrencyBreakdown(previewWorkspace.accounts, previewToUSD), [previewWorkspace.accounts, previewToUSD]);
 
     useEffect(() => {
         saveSiteLanguage(language);
@@ -423,7 +470,12 @@ export function SetupFlow() {
     };
 
     const openWorkspace = () => {
-        loadDemoWorkspace();
+        loadDemoWorkspace({
+            profileId: draft.profileId,
+            regionId: draft.regionId,
+            assetIds: draft.assetIds,
+            institutions: draft.institutions,
+        });
         window.localStorage.removeItem(SETUP_DRAFT_KEY);
         navigate('/dashboard');
     };
@@ -456,11 +508,24 @@ export function SetupFlow() {
             const nextAssetIds = current.assetIds.includes(assetId)
                 ? current.assetIds.filter(id => id !== assetId)
                 : [...current.assetIds, assetId];
-            const visibleIds = new Set(getVisibleInstitutions(nextAssetIds).map(option => option.id));
+            const visibleIds = new Set(getVisibleInstitutions(current.regionId, nextAssetIds).map(option => option.id));
+            const retained = current.institutions.filter(id => visibleIds.has(id));
             return {
                 ...current,
                 assetIds: nextAssetIds,
-                institutions: current.institutions.filter(id => visibleIds.has(id)),
+                institutions: retained.length > 0 ? retained : getRecommendedInstitutions(current.regionId, nextAssetIds),
+            };
+        });
+    };
+
+    const selectRegion = (regionId: SetupRegionId) => {
+        setDraft(current => {
+            const visibleIds = new Set(getVisibleInstitutions(regionId, current.assetIds).map(option => option.id));
+            const retained = current.institutions.filter(id => visibleIds.has(id));
+            return {
+                ...current,
+                regionId,
+                institutions: retained.length > 0 ? retained : getRecommendedInstitutions(regionId, current.assetIds),
             };
         });
     };
@@ -577,6 +642,45 @@ export function SetupFlow() {
                         </div>
                     </>
                 );
+            case 'region':
+                return (
+                    <>
+                        <StepHeader eyebrow={copy.region.eyebrow} title={copy.region.title} body={copy.region.body} />
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            {SETUP_REGIONS.map(option => {
+                                const active = draft.regionId === option.id;
+
+                                return (
+                                    <button
+                                        key={option.id}
+                                        type="button"
+                                        onClick={() => selectRegion(option.id)}
+                                        className={clsx(
+                                            'setup-chip-lift rounded-[24px] border p-3.5 text-left',
+                                            active
+                                                ? 'border-slate-900 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] dark:border-white dark:bg-white dark:text-slate-950'
+                                                : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-[#141b26] dark:hover:border-white/20',
+                                        )}
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className={clsx('flex size-11 items-center justify-center rounded-2xl', active ? 'bg-white/12 dark:bg-slate-950/8' : 'bg-slate-100 dark:bg-white/6')}>
+                                                <Languages size={18} />
+                                            </div>
+                                            {active && <Check size={18} className="mt-1 shrink-0" />}
+                                        </div>
+                                        <p className="mt-3 text-[15px] font-extrabold tracking-[0.012em]">{localize(option.title, language)}</p>
+                                        <p className={clsx('mt-1.5 text-[13px] leading-5', active ? 'text-white/72 dark:text-slate-700' : 'text-slate-500 dark:text-slate-400')}>
+                                            {localize(option.note, language)}
+                                        </p>
+                                        <p className={clsx('mt-3 text-[12px] leading-5', active ? 'text-white/55 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500')}>
+                                            {localize(option.helper, language)}
+                                        </p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </>
+                );
             case 'sources':
                 return (
                     <>
@@ -585,6 +689,13 @@ export function SetupFlow() {
                             <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
                                 {copy.sources.institutionsLabel}
                             </p>
+                            {selectedRegion && (
+                                <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-[#141b26] dark:text-slate-300">
+                                    {language === 'zh'
+                                        ? `当前地区：${localize(selectedRegion.title, language)}`
+                                        : `Current region: ${localize(selectedRegion.title, language)}`}
+                                </div>
+                            )}
                             <div className="space-y-3">
                                 {(['bank', 'wallet', 'broker'] as SetupInstitutionGroup[]).map(group => (
                                     <div key={group} className="space-y-2">
@@ -906,6 +1017,14 @@ export function SetupFlow() {
                     <section className="relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(190,200,255,0.24),transparent_26%),linear-gradient(180deg,#f6efe1_0%,#f3ecde_100%)] px-5 py-3 tracking-[0.01em] dark:bg-[radial-gradient(circle_at_top_right,rgba(248,206,145,0.12),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(117,130,217,0.16),transparent_22%),linear-gradient(180deg,#0e131b_0%,#121925_100%)] lg:px-6 lg:py-3">
                         {draft.currentStep === 'profile' && <ProfileVisual profile={selectedProfile} language={language} copy={copy.profile} />}
                         {draft.currentStep === 'assets' && <AssetsVisual assetIds={draft.assetIds} language={language} copy={copy.assets} />}
+                        {draft.currentStep === 'region' && (
+                            <RegionVisual
+                                language={language}
+                                visualLabel={copy.region.visualLabel}
+                                region={selectedRegion}
+                                institutions={visibleInstitutions}
+                            />
+                        )}
                         {draft.currentStep === 'sources' && (
                             <SourcesVisual
                                 language={language}
@@ -931,6 +1050,9 @@ export function SetupFlow() {
                                 assetIds={draft.assetIds}
                                 institutions={selectedInstitutions}
                                 uploads={draft.uploadNames}
+                                accountRows={previewAccountRows}
+                                typeRows={previewTypeRows}
+                                currencyRows={previewCurrencyRows}
                             />
                         )}
                     </section>
@@ -944,10 +1066,10 @@ function StepHeader({ eyebrow, title, body }: { eyebrow: string; title: string; 
     return (
         <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">{eyebrow}</p>
-            <h1 className="mt-4 max-w-[14ch] text-[clamp(1.28rem,1.6vw,1.92rem)] font-extrabold leading-[1.08] tracking-[0.012em] text-slate-950 dark:text-white">
+            <h1 className="mt-4 max-w-[14ch] text-[clamp(1.28rem,1.62vw,1.95rem)] font-extrabold leading-[1.08] tracking-[0.018em] text-slate-950 dark:text-white">
                 {title}
             </h1>
-            <p className="mt-3 max-w-[44ch] text-[13.5px] leading-6 tracking-[0.012em] text-slate-500 dark:text-slate-400">{body}</p>
+            <p className="mt-3 max-w-[44ch] text-[13.5px] leading-6 tracking-[0.022em] text-slate-500 dark:text-slate-400">{body}</p>
         </div>
     );
 }
@@ -1193,6 +1315,87 @@ function AssetsVisual({
     );
 }
 
+function RegionVisual({
+    language,
+    visualLabel,
+    region,
+    institutions,
+}: {
+    language: SiteLanguage;
+    visualLabel: string;
+    region: (typeof SETUP_REGIONS)[number] | null;
+    institutions: SetupInstitution[];
+}) {
+    const grouped = {
+        bank: institutions.filter(option => option.group === 'bank'),
+        wallet: institutions.filter(option => option.group === 'wallet'),
+        broker: institutions.filter(option => option.group === 'broker'),
+    };
+
+    return (
+        <VisualShell label={visualLabel}>
+            <div className="grid h-full min-h-0 gap-4 xl:grid-cols-[0.96fr_1.04fr]">
+                <div className="rounded-[34px] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] p-5 text-white">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                        {language === 'zh' ? '地区入口' : 'Region lane'}
+                    </p>
+                    <p className="mt-4 text-[2rem] font-black leading-[1.02] tracking-[-0.02em]">
+                        {region ? localize(region.title, language) : language === 'zh' ? '先选生活地区' : 'Choose a living region first'}
+                    </p>
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-white/62">
+                        {region
+                            ? localize(region.note, language)
+                            : language === 'zh'
+                                ? '地区会先决定后面更常见的银行卡、钱包和券商来源。'
+                                : 'The region sets which banks, wallets, and brokers show up next.'}
+                    </p>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
+                        {([
+                            { key: 'bank', label: language === 'zh' ? '银行卡' : 'Banks', value: grouped.bank.length },
+                            { key: 'wallet', label: language === 'zh' ? '钱包' : 'Wallets', value: grouped.wallet.length },
+                            { key: 'broker', label: language === 'zh' ? '券商' : 'Brokers', value: grouped.broker.length },
+                        ] as const).map(item => (
+                            <div key={item.key} className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">{item.label}</p>
+                                <p className="mt-3 text-3xl font-black tracking-[-0.05em] text-white">{item.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="rounded-[34px] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#171d27]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                        {language === 'zh' ? '下一步会出现的机构' : 'What appears next'}
+                    </p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {institutions.slice(0, 8).map(option => (
+                            <div key={option.id} className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3.5 dark:border-white/10 dark:bg-[#0f141d]">
+                                <div className="flex items-center gap-3">
+                                    <span className="size-2.5 rounded-full" style={{ backgroundColor: option.accent }} />
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{localize(option.title, language)}</p>
+                                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{localize(option.note, language)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-4 rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 dark:border-white/10 dark:bg-[#0f141d]">
+                        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+                            {region
+                                ? localize(region.helper, language)
+                                : language === 'zh'
+                                    ? '先选地区后，后面的机构选择才会真的跟着变化。'
+                                    : 'Choose a region first so the institution list can actually change.'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </VisualShell>
+    );
+}
+
 function SourcesVisual({
     language,
     groupLabels,
@@ -1388,6 +1591,9 @@ function PreviewVisual({
     assetIds,
     institutions,
     uploads,
+    accountRows,
+    typeRows,
+    currencyRows,
 }: {
     language: SiteLanguage;
     visualLabel: string;
@@ -1396,7 +1602,12 @@ function PreviewVisual({
     assetIds: SetupAssetId[];
     institutions: SetupInstitution[];
     uploads: string[];
+    accountRows: AccountRow[];
+    typeRows: ReturnType<typeof buildTypeBreakdown>;
+    currencyRows: ReturnType<typeof buildCurrencyBreakdown>;
 }) {
+    const workspaceTotal = accountRows.reduce((sum, row) => sum + row.usdValue, 0);
+
     return (
         <VisualShell label={visualLabel}>
             <div className="grid h-full gap-4 lg:grid-cols-[1.04fr_0.96fr]">
@@ -1407,7 +1618,7 @@ function PreviewVisual({
                                 {language === 'zh' ? '桌面快照' : 'Workspace snapshot'}
                             </p>
                             <p className="mt-4 text-[2.2rem] font-black leading-[1] tracking-[-0.04em]">
-                                {formatUsd(DEMO_ACCOUNT_ROWS.reduce((sum, row) => sum + row.usdValue, 0))}
+                                {formatUsd(workspaceTotal)}
                             </p>
                             <p className="mt-3 max-w-xl text-sm leading-6 text-white/62">{openHint}</p>
                         </div>
@@ -1416,13 +1627,13 @@ function PreviewVisual({
                         </div>
                     </div>
 
-                        <div className="mt-5 rounded-[28px] border border-white/10 bg-white/6 p-4">
+                    <div className="mt-5 rounded-[28px] border border-white/10 bg-white/6 p-4">
                         <div className="flex items-center justify-between gap-4">
                             <p className="text-sm font-semibold text-white/72">{language === 'zh' ? '大类分布' : 'Category split'}</p>
                             <p className="text-xs font-semibold text-white/45">{language === 'zh' ? `${institutions.length} 个来源` : `${institutions.length} sources`}</p>
                         </div>
                         <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-white/10">
-                            {DEMO_TYPE_ROWS.map(row => (
+                            {typeRows.map(row => (
                                 <div
                                     key={row.key}
                                     className="h-full first:rounded-l-full last:rounded-r-full"
@@ -1434,7 +1645,7 @@ function PreviewVisual({
                             ))}
                         </div>
                         <div className="mt-4 grid gap-3 md:grid-cols-3">
-                            {DEMO_TYPE_ROWS.map(row => (
+                            {typeRows.map(row => (
                                 <div key={row.key} className="rounded-[20px] bg-white/8 px-4 py-3.5">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">{row.label}</p>
                                     <p className="mt-3 text-2xl font-black tracking-[-0.06em] text-white">{row.share.toFixed(1)}%</p>
@@ -1451,7 +1662,7 @@ function PreviewVisual({
                             {language === 'zh' ? '主币种' : 'Top currencies'}
                         </p>
                         <div className="mt-4 space-y-3">
-                            {DEMO_CURRENCY_ROWS.slice(0, 4).map(row => (
+                            {currencyRows.slice(0, 4).map(row => (
                                 <div key={row.key} className="rounded-[22px] bg-slate-50 px-4 py-4 dark:bg-[#0f141d]">
                                     <div className="flex items-center justify-between gap-4">
                                         <p className="text-lg font-black tracking-[-0.04em] text-slate-950 dark:text-white">{row.label}</p>

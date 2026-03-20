@@ -435,18 +435,23 @@ function CurrencyAmountInput({
     value: number;
     onAmountChange: (value: number) => void;
 }) {
+    const displayValue = value === 0 ? '' : String(value);
+
     return (
-        <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400 dark:text-slate-500">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 focus-within:ring-2 focus-within:ring-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:ring-slate-600">
+            <span className="inline-flex min-w-[52px] shrink-0 items-center justify-center rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                 {CURRENCY_SYMBOLS[currency]}
             </span>
             <input
-                type="number"
-                step="0.01"
-                value={value === 0 ? '' : value}
-                onChange={event => onAmountChange(Number(event.target.value || 0))}
+                type="text"
+                inputMode="decimal"
+                value={displayValue}
+                onChange={event => {
+                    const sanitized = event.target.value.replace(/[^\d.]/g, '').replace(/^(\d*\.\d*).*$/, '$1');
+                    onAmountChange(Number(sanitized || 0));
+                }}
                 placeholder="0"
-                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:ring-slate-600"
+                className="min-w-0 flex-1 bg-transparent px-0 py-0 text-lg font-semibold tracking-[-0.02em] text-slate-900 outline-none placeholder:text-slate-300 dark:text-white dark:placeholder:text-slate-600"
             />
         </div>
     );
